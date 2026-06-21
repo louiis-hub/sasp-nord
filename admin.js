@@ -173,7 +173,7 @@ function renderTable(apps) {
         '<button class="btn btn-ghost btn-sm" onclick="openModal(\'' + a.id + '\')">Voir</button>' +
         '<button class="btn btn-green btn-sm" onclick="setStatus(\'' + a.id + '\',\'Acceptée\')">Validé</button>' +
         '<button class="btn btn-red   btn-sm" onclick="setStatus(\'' + a.id + '\',\'Refusée\')">Refusé</button>' +
-        '<button class="btn btn-gray  btn-sm" onclick="setStatus(\'' + a.id + '\',\'Archivée\')">Arc</button>' +
+        '<button class="btn btn-gray  btn-sm" onclick="setStatus(\'' + a.id + '\',\'Archivée\')">Archivé</button>' +
       '</div></td>' +
       '</tr>';
   }).join('');
