@@ -133,18 +133,28 @@ function renderTable(apps) {
 
 // ── Status update ─────────────────────────────────────────────
 function setStatus(id, s) {
+  var previous = null;
+  var app = allApps.find(function(x){ return x.id === id; });
+  if (app) {
+    previous = app.statut;
+    app.statut = s;
+  }
+  updateStats();
+  renderTable(currentFilter === 'all' ? allApps : allApps.filter(function(a){ return a.statut === currentFilter; }));
+
   google.script.run
     .withSuccessHandler(function(res) {
-      if (res.success) {
-        var a = allApps.find(function(x){ return x.id === id; });
-        if (a) a.statut = s;
+      if (!res.success) {
+        if (app && previous !== null) app.statut = previous;
         updateStats();
         renderTable(currentFilter === 'all' ? allApps : allApps.filter(function(a){ return a.statut === currentFilter; }));
-      } else {
         alert(res && res.error ? res.error : 'Impossible de modifier le statut.');
       }
     })
     .withFailureHandler(function(err) {
+      if (app && previous !== null) app.statut = previous;
+      updateStats();
+      renderTable(currentFilter === 'all' ? allApps : allApps.filter(function(a){ return a.statut === currentFilter; }));
       alert(err ? err.toString() : 'Impossible de modifier le statut.');
     })
     .updateStatus(id, s);
@@ -218,7 +228,7 @@ function buildModal(app) {
       '<div class="info-item"><div class="info-k">Prenom RP</div><div class="info-v">' + esc(app.prenomRP)        + '</div></div>' +
       '<div class="info-item"><div class="info-k">Naissance</div><div class="info-v">' + esc(app.dateNaissanceRP) + '</div></div>' +
       '<div class="info-item"><div class="info-k">Tel RP</div><div class="info-v">'    + esc(app.telephoneRP)     + '</div></div>' +
-      '<div class="info-item"><div class="info-k">Email</div><div class="info-v">'     + esc(app.email)           + '</div></div>' +
+      '<div class="info-item"><div class="info-k">Discord</div><div class="info-v">'   + esc(app.pseudoDiscord || app.email) + '</div></div>' +
       '<div class="info-item"><div class="info-k">Permis</div><div class="info-v">'    + esc(app.permisConduire)  + '</div></div>' +
       '<div class="info-item"><div class="info-k">Date</div><div class="info-v">'      + esc(app.date)            + '</div></div>' +
       '<div class="info-item"><div class="info-k">Statut</div><div class="info-v"><span class="badge ' + statusCls(app.statut) + '">' + esc(app.statut) + '</span></div></div>' +

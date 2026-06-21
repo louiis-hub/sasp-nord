@@ -16,6 +16,7 @@
       nomRP:data.nomRP || '',
       prenomRP:data.prenomRP || '',
       email:data.email || '',
+      pseudoDiscord:data.pseudoDiscord || data.email || '',
       telephoneRP:data.telephoneRP || '',
       permisConduire:data.permisConduire || '',
       experienceForces:data.experienceForces || '',
