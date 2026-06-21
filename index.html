@@ -76,7 +76,7 @@
     </a>
   </div>
   <div id="homeRecruitmentStatus" style="margin-top:20px;padding:12px 24px;min-width:280px;text-align:center;border:2px solid rgba(16,185,129,.45);background:rgba(16,185,129,.12);color:var(--green);font-family:'Share Tech Mono',monospace;font-size:1rem;font-weight:700;letter-spacing:1px;border-radius:6px;box-shadow:0 0 18px rgba(16,185,129,.12)">
-    RECRUTEMENT : OUVERT
+    RECRUTEMENT : CHARGEMENT...
   </div>
   <div class="hero-line"></div>
 </section>
@@ -126,7 +126,7 @@
     </div>
 
     <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,var(--bgCard) 0%,rgba(29,78,216,.08) 100%);border-color:var(--border1)">
-      <div class="about-label" id="homeRecruitmentStatusSecondary">Recrutement ouvert</div>
+      <div class="about-label" id="homeRecruitmentStatusSecondary">Statut en chargement</div>
       <h2 style="font-size:1.4rem;margin-bottom:14px">Rejoignez nos rangs</h2>
       <p class="about-text">
         Vous souhaitez intégrer l'une des factions les plus exigeantes du serveur ?
@@ -168,15 +168,13 @@
 document.getElementById('ctaPostuler').href  = 'recrutement.html';
 document.getElementById('ctaPostuler2').href = 'recrutement.html';
 document.getElementById('ctaInfo').href      = 'info.html';
-function refreshRecruitmentStatus() {
-google.script.run.withSuccessHandler(function(res) {
-  if (!res || !res.success) return;
+function applyRecruitmentStatus(status) {
   var map = {
     open:{label:'Recrutement ouvert', text:'Déposer ma candidature'},
     limited:{label:'Recrutement limité', text:'Postuler - places limitées'},
     closed:{label:'Recrutement fermé', text:'Recrutement fermé'}
   };
-  var state = map[res.status] || map.open;
+  var state = map[status] || map.open;
   var primary = document.getElementById('homeRecruitmentStatus');
   var secondary = document.getElementById('homeRecruitmentStatusSecondary');
   primary.textContent = 'RECRUTEMENT : ' + state.label.replace('Recrutement ', '').toUpperCase();
@@ -186,7 +184,7 @@ google.script.run.withSuccessHandler(function(res) {
     limited:['rgba(245,158,11,.5)','rgba(245,158,11,.12)','var(--yellow)'],
     closed:['rgba(239,68,68,.5)','rgba(239,68,68,.12)','var(--red)']
   };
-  var c = colors[res.status] || colors.open;
+  var c = colors[status] || colors.open;
   primary.style.borderColor = c[0];
   primary.style.background = c[1];
   primary.style.color = c[2];
@@ -196,14 +194,23 @@ google.script.run.withSuccessHandler(function(res) {
     el.style.opacity = '1';
     el.style.pointerEvents = 'auto';
     el.href = 'recrutement.html';
-    if (res.status === 'closed') {
+    if (status === 'closed') {
       el.removeAttribute('href');
       el.style.opacity = '.5';
       el.style.pointerEvents = 'none';
     }
   });
+}
+
+function refreshRecruitmentStatus() {
+google.script.run.withSuccessHandler(function(res) {
+  if (!res || !res.success) return;
+  localStorage.setItem('sasp_recruitment_status', res.status);
+  applyRecruitmentStatus(res.status);
 }).getRecruitmentStatus();
 }
+var cachedRecruitmentStatus = localStorage.getItem('sasp_recruitment_status');
+if (cachedRecruitmentStatus) applyRecruitmentStatus(cachedRecruitmentStatus);
 refreshRecruitmentStatus();
 setInterval(refreshRecruitmentStatus, 5000);
 document.addEventListener('visibilitychange', function(){

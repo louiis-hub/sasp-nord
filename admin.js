@@ -137,6 +137,7 @@ function loadRecruitmentStatus() {
 }
 
 function saveRecruitmentStatus(status, btn) {
+  localStorage.setItem('sasp_recruitment_status', status);
   paintRecruitmentStatus(status);
   document.getElementById('recruitmentStatusFeedback').textContent = 'Enregistrement...';
   google.script.run
