@@ -294,7 +294,7 @@ if (location.hostname !== 'sasp-nord-discord-bot.louisleurin.workers.dev') {
     <div class="form-nav">
       <button class="btn btn-ghost" onclick="prevStep()">← Retour</button>
       <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">
-        <span id="submitTxt">Soumettre ma candidature</span>
+        <span id="submitTxt">Terminer le QCM</span>
       </button>
     </div>
   </div>
@@ -304,11 +304,9 @@ if (location.hostname !== 'sasp-nord-discord-bot.louisleurin.workers.dev') {
 <!-- Success -->
 <div class="success-screen" id="successScreen">
   <div class="success-icon">✅</div>
-  <div class="success-ttl">Candidature envoyée !</div>
-  <div class="success-msg">Votre dossier a été transmis à l'équipe de recrutement du SASP Nord. Vous serez contacté dans les meilleurs délais.</div>
+  <div class="success-ttl">QCM terminé !</div>
+  <div class="success-msg">Tes réponses ont été transmises dans ton ticket Discord. Ce lien est maintenant désactivé.</div>
   <div class="success-id" id="successId"></div>
-  <a class="btn btn-primary" style="margin-top:22px" href="https://discord.gg/KsSmxnNKWV" target="_blank" rel="noopener">Rejoindre le Discord</a>
-  <button class="btn btn-ghost" style="margin-top:28px" onclick="window.location.href='recrutement.html'">Soumettre une nouvelle candidature</button>
 </div>
 
 <div class="save-toast" id="saveToast"><span class="save-dot"></span> Brouillon sauvegardé</div>
@@ -426,10 +424,10 @@ function submitForm(){
     .withSuccessHandler(res=>{
       localStorage.setItem(submitStorageKey,String(Date.now()));
       sessionStorage.removeItem('sasp_draft');
-      document.getElementById('successId').textContent=res.success?'📁 Référence : #'+res.id:'';
+      document.getElementById('successId').textContent='Tu peux retourner sur Discord.';
       document.getElementById('successScreen').classList.add('open');
     })
-    .withFailureHandler(()=>{btn.disabled=false;txt.textContent='Soumettre ma candidature';alert('Erreur lors de l\'envoi. Veuillez réessayer.');})
+    .withFailureHandler(()=>{btn.disabled=false;txt.textContent='Terminer le QCM';alert('Erreur lors de l\'envoi. Veuillez réessayer.');})
     .submitApplication(data);
 }
 

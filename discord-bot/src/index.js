@@ -66,7 +66,7 @@ async function serveRecruitment(env, url) {
   let html = await upstream.text();
   const apiUrl = `${url.origin}/api?token=${encodeURIComponent(token)}`;
   html = html
-    .replace('<head>', `<head>\n<base href="${env.SITE_URL}/">`)
+    .replace('<head>', `<head>\n<base href="${env.SITE_URL}/"><style>.site-header{display:none!important}body{padding-top:0!important}</style>`)
     .replace('<script src="config.js"></script>', `<script>window.SASP_API_URL=${JSON.stringify(apiUrl)};</script>`);
 
   return new Response(html, {
@@ -99,10 +99,61 @@ async function sendQcmRecap(env, access, payload, applicationId) {
   });
 }
 
-async function proxyAppsScript(request, env, url) {
+async function processApplicationSubmission(env, token, access, payload) {
+  const encoded = new URLSearchParams();
+  encoded.set('payload', JSON.stringify(payload));
+  const upstream = await fetch(env.APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+    body: encoded.toString(),
+    redirect: 'follow'
+  });
+  const responseText = await upstream.text();
+  let linkedApplicationId = '';
+  try {
+    const result = JSON.parse(responseText);
+    if (result.success && result.id) linkedApplicationId = String(result.id);
+  } catch (error) {
+    console.error('Réponse Apps Script non JSON', error);
+  }
+  if (!linkedApplicationId) {
+    const listUrl = new URL(env.APPS_SCRIPT_URL);
+    listUrl.searchParams.set('action', 'list');
+    const listResponse = await fetch(listUrl, { redirect: 'follow' });
+    const listResult = await listResponse.json();
+    const latest = (listResult.data || []).find(application =>
+      String(application.pseudoDiscord || '') === String(payload.pseudoDiscord || '') &&
+      String(application.nomRP || '') === String(payload.nomRP || '') &&
+      String(application.prenomRP || '') === String(payload.prenomRP || '')
+    );
+    if (latest?.id) linkedApplicationId = String(latest.id);
+  }
+  if (!linkedApplicationId) throw new Error('Candidature introuvable après envoi');
+
+  await env.TICKET_ACCESS.put(`application:${linkedApplicationId}`, JSON.stringify(access), { expirationTtl: 90 * 24 * 60 * 60 });
+  if (!await env.TICKET_ACCESS.get(`qcm-completed:${access.channelId}`)) {
+    await sendQcmRecap(env, access, payload, linkedApplicationId);
+    await Promise.all([
+      env.TICKET_ACCESS.put(`qcm-completed:${access.channelId}`, linkedApplicationId, { expirationTtl: 90 * 24 * 60 * 60 }),
+      env.TICKET_ACCESS.delete(`token:${token}`),
+      env.TICKET_ACCESS.delete(`channel:${access.channelId}`)
+    ]);
+  }
+}
+
+async function proxyAppsScript(request, env, url, ctx) {
   const token = url.searchParams.get('token');
   const access = await getTicketAccess(env, token);
   if (!access) return json({ success: false, error: 'Acces candidat expire' }, 403);
+
+  if (request.method === 'POST') {
+    const form = await request.formData();
+    const payload = JSON.parse(String(form.get('payload') || '{}'));
+    payload.discordUserId = access.userId;
+    payload.discordChannelId = access.channelId;
+    ctx.waitUntil(processApplicationSubmission(env, token, access, payload));
+    return json({ success: true, id: 'QCM' }, 202);
+  }
 
   const target = new URL(env.APPS_SCRIPT_URL);
   for (const [key, value] of url.searchParams) {
@@ -667,7 +718,7 @@ export default {
     if (url.pathname === '/admin/decision' && request.method === 'POST') return applicationDecision(request, env);
     if (url.pathname === '/recrutement' && request.method === 'GET') return serveRecruitment(env, url);
     if (url.pathname === '/api' && (request.method === 'GET' || request.method === 'POST')) {
-      return proxyAppsScript(request, env, url);
+      return proxyAppsScript(request, env, url, ctx);
     }
     if (url.pathname !== '/interactions' || request.method !== 'POST') {
       return new Response('SASP Nord Discord Bot', { status: 200 });
