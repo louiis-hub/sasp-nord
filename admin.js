@@ -119,8 +119,8 @@ function renderTable(apps) {
           '<span style="color:var(--t3);font-size:.72rem"> (RP:' + rp + ' HRP:' + hr + ')</span></td>' +
       '<td><div class="act-btns">' +
         '<button class="btn btn-ghost btn-sm" onclick="openModal(\'' + a.id + '\')">Voir</button>' +
-        '<button class="btn btn-green btn-sm" onclick="setStatus(\'' + a.id + '\',\'Acceptée\')">OK</button>' +
-        '<button class="btn btn-red   btn-sm" onclick="setStatus(\'' + a.id + '\',\'Refusée\')">NON</button>' +
+        '<button class="btn btn-green btn-sm" onclick="setStatus(\'' + a.id + '\',\'Acceptée\')">Validé</button>' +
+        '<button class="btn btn-red   btn-sm" onclick="setStatus(\'' + a.id + '\',\'Refusée\')">Refusé</button>' +
         '<button class="btn btn-gray  btn-sm" onclick="setStatus(\'' + a.id + '\',\'Archivée\')">Arc</button>' +
       '</div></td>' +
       '</tr>';
@@ -140,7 +140,12 @@ function setStatus(id, s) {
         if (a) a.statut = s;
         updateStats();
         renderTable(currentFilter === 'all' ? allApps : allApps.filter(function(a){ return a.statut === currentFilter; }));
+      } else {
+        alert(res && res.error ? res.error : 'Impossible de modifier le statut.');
       }
+    })
+    .withFailureHandler(function(err) {
+      alert(err ? err.toString() : 'Impossible de modifier le statut.');
     })
     .updateStatus(id, s);
 }
