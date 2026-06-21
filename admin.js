@@ -184,43 +184,13 @@ function renderTable(apps) {
 }
 
 // ── Status update ─────────────────────────────────────────────
-var pendingAppointmentId = '';
-
-function openAppointmentDialog(id) {
-  pendingAppointmentId = id;
-  var dateInput = document.getElementById('appointmentDate');
-  var tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  dateInput.min = new Date().toISOString().slice(0,10);
-  dateInput.value = tomorrow.getFullYear() + '-' + String(tomorrow.getMonth() + 1).padStart(2,'0') + '-' + String(tomorrow.getDate()).padStart(2,'0');
-  document.getElementById('appointmentTime').value = '20:00';
-  document.getElementById('appointmentError').textContent = '';
-  document.getElementById('appointmentOverlay').classList.add('open');
-}
-
-function closeAppointmentDialog() {
-  document.getElementById('appointmentOverlay').classList.remove('open');
-  pendingAppointmentId = '';
-}
-
-function confirmAppointmentDecision() {
-  var date = document.getElementById('appointmentDate').value;
-  var time = document.getElementById('appointmentTime').value;
-  if (!date || !time) {
-    document.getElementById('appointmentError').textContent = 'Choisis une date et une heure.';
-    return;
-  }
-  var id = pendingAppointmentId;
-  closeAppointmentDialog();
-  sendDiscordDecision(id, 'Acceptée', date, time);
-}
-
-function sendDiscordDecision(id, status, appointmentDate, appointmentTime) {
+function sendDiscordDecision(id, status) {
   var token = _authGet();
   if (!token) { logout(); return; }
   fetch(ADMIN_API + '/admin/decision', {
     method: 'POST',
     headers: {'content-type':'application/json','authorization':'Bearer ' + token},
-    body: JSON.stringify({id:id,status:status,appointmentDate:appointmentDate||'',appointmentTime:appointmentTime||''})
+    body: JSON.stringify({id:id,status:status})
   }).then(function(response){
     return response.json().then(function(data){ return {ok:response.ok,data:data}; });
   }).then(function(result){
@@ -229,7 +199,7 @@ function sendDiscordDecision(id, status, appointmentDate, appointmentTime) {
     if (app) app.statut = status;
     updateStats();
     renderTable(getFilteredApps());
-    alert(status === 'Acceptée' ? 'Candidature acceptée et rendez-vous envoyé dans le ticket.' : 'Refus envoyé. Le candidat pourra réessayer dans 24 h.');
+    alert(status === 'Acceptée' ? 'Acceptation envoyée dans le ticket.' : 'Refus envoyé. Le candidat pourra réessayer dans 24 h.');
   }).catch(function(error){
     if (/session/i.test(error.message || '')) logout();
     alert(error.message || 'Impossible d’envoyer la décision.');
@@ -237,10 +207,10 @@ function sendDiscordDecision(id, status, appointmentDate, appointmentTime) {
 }
 
 function setStatus(id, s) {
-  if (s === 'Acceptée') { openAppointmentDialog(id); return; }
+  if (s === 'Acceptée') { sendDiscordDecision(id, s); return; }
   if (s === 'Refusée') {
     if (confirm('Confirmer le refus ? Le candidat pourra déposer une nouvelle candidature dans 24 heures.')) {
-      sendDiscordDecision(id, s, '', '');
+      sendDiscordDecision(id, s);
     }
     return;
   }
