@@ -10,3 +10,8 @@ CANDIDATE_ROLE_ID = "1518214554507542539"
 STAFF_ROLE_ID = "1518215100425703464"
 RECRUITMENT_CATEGORY_ID = "1518215261885431948"
 SITE_URL = "https://louiis-hub.github.io/sasp-nord"
+APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxg6hAzEAz0HN7aItXRLjuSOcn8DCTN2u45AQ6bZL3g8NKZ5VT7jdvCnG7mGaem4N9_cg/exec"
+
+[[kv_namespaces]]
+binding = "TICKET_ACCESS"
+id = "82c5418c24d24ecab99cc942662d8731"

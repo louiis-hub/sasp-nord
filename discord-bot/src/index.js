@@ -13,6 +13,13 @@ function json(data, status = 200) {
   });
 }
 
+function accessDenied() {
+  return new Response(`<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Acces reserve</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#050b16;color:#eef3fb;font-family:Arial,sans-serif}.box{max-width:520px;padding:32px;text-align:center}h1{font-size:28px}p{color:#aab7ca;line-height:1.6}a{display:inline-block;margin-top:14px;padding:13px 18px;background:#d98a00;color:#111;text-decoration:none;font-weight:700;border-radius:6px}</style><div class="box"><h1>Acces reserve aux candidats</h1><p>Ouvre un ticket de recrutement sur Discord pour recevoir ton lien personnel vers le questionnaire.</p><a href="https://discord.gg/KsSmxnNKWV">Ouvrir Discord</a></div></html>`, {
+    status: 403,
+    headers: { 'content-type': 'text/html;charset=UTF-8', 'cache-control': 'no-store' }
+  });
+}
+
 async function discord(env, path, init = {}) {
   const response = await fetch(API + path, {
     ...init,
@@ -28,6 +35,55 @@ async function discord(env, path, init = {}) {
   }
   if (response.status === 204) return null;
   return response.json();
+}
+
+async function getTicketAccess(env, token) {
+  if (!token) return null;
+  return env.TICKET_ACCESS.get(`token:${token}`, 'json');
+}
+
+async function serveRecruitment(env, url) {
+  const token = url.searchParams.get('token');
+  const access = await getTicketAccess(env, token);
+  if (!access) return accessDenied();
+
+  const upstream = await fetch(`${env.SITE_URL}/recrutement.html`, {
+    headers: { 'cache-control': 'no-cache' }
+  });
+  let html = await upstream.text();
+  const apiUrl = `${url.origin}/api?token=${encodeURIComponent(token)}`;
+  html = html
+    .replace('<head>', `<head>\n<base href="${env.SITE_URL}/">`)
+    .replace('<script src="config.js"></script>', `<script>window.SASP_API_URL=${JSON.stringify(apiUrl)};</script>`);
+
+  return new Response(html, {
+    headers: { 'content-type': 'text/html;charset=UTF-8', 'cache-control': 'no-store' }
+  });
+}
+
+async function proxyAppsScript(request, env, url) {
+  const token = url.searchParams.get('token');
+  const access = await getTicketAccess(env, token);
+  if (!access) return json({ success: false, error: 'Acces candidat expire' }, 403);
+
+  const target = new URL(env.APPS_SCRIPT_URL);
+  for (const [key, value] of url.searchParams) {
+    if (key !== 'token') target.searchParams.append(key, value);
+  }
+  const contentType = request.headers.get('content-type');
+  const upstream = await fetch(target, {
+    method: request.method,
+    headers: contentType ? { 'content-type': contentType } : {},
+    body: request.method === 'GET' ? undefined : await request.arrayBuffer(),
+    redirect: 'follow'
+  });
+  return new Response(upstream.body, {
+    status: upstream.status,
+    headers: {
+      'content-type': upstream.headers.get('content-type') || 'text/plain;charset=UTF-8',
+      'cache-control': 'no-store'
+    }
+  });
 }
 
 function safeChannelName(username) {
@@ -58,7 +114,7 @@ async function removeCandidateRole(env, userId) {
   });
 }
 
-async function createTicket(env, interaction) {
+async function createTicket(env, interaction, origin) {
   const user = interaction.member.user;
   const existing = await findOpenTicket(env, user.id);
   if (existing) {
@@ -85,6 +141,13 @@ async function createTicket(env, interaction) {
     })
   });
 
+  const token = crypto.randomUUID().replace(/-/g, '');
+  const ttl = 7 * 24 * 60 * 60;
+  await Promise.all([
+    env.TICKET_ACCESS.put(`token:${token}`, JSON.stringify({ userId: user.id, channelId: channel.id }), { expirationTtl: ttl }),
+    env.TICKET_ACCESS.put(`channel:${channel.id}`, token, { expirationTtl: ttl })
+  ]);
+
   await discord(env, `/channels/${channel.id}/messages`, {
     method: 'POST',
     body: JSON.stringify({
@@ -97,7 +160,7 @@ async function createTicket(env, interaction) {
       components: [{
         type: 1,
         components: [
-          { type: 2, style: 5, label: 'Accéder au test', url: `${env.SITE_URL}/recrutement.html` },
+          { type: 2, style: 5, label: 'Accéder au test', url: `${origin}/recrutement?token=${token}` },
           { type: 2, style: 4, label: 'Fermer le ticket', custom_id: 'close_recruitment_ticket' }
         ]
       }]
@@ -124,6 +187,13 @@ async function closeTicket(env, interaction, ctx) {
   }
 
   await removeCandidateRole(env, ownerId);
+  const token = await env.TICKET_ACCESS.get(`channel:${interaction.channel_id}`);
+  if (token) {
+    await Promise.all([
+      env.TICKET_ACCESS.delete(`token:${token}`),
+      env.TICKET_ACCESS.delete(`channel:${interaction.channel_id}`)
+    ]);
+  }
   ctx.waitUntil(new Promise(resolve => setTimeout(resolve, 1200)).then(() =>
     discord(env, `/channels/${interaction.channel_id}`, { method: 'DELETE' })
   ));
@@ -138,6 +208,10 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === '/health') return json({ ok: true });
+    if (url.pathname === '/recrutement' && request.method === 'GET') return serveRecruitment(env, url);
+    if (url.pathname === '/api' && (request.method === 'GET' || request.method === 'POST')) {
+      return proxyAppsScript(request, env, url);
+    }
     if (url.pathname !== '/interactions' || request.method !== 'POST') {
       return new Response('SASP Nord Discord Bot', { status: 200 });
     }
@@ -154,7 +228,7 @@ export default {
         return json({ type: InteractionResponseType.PONG });
       }
       if (interaction.type === InteractionType.APPLICATION_COMMAND && interaction.data.name === 'ticket-recrutement') {
-        return json(await createTicket(env, interaction));
+        return json(await createTicket(env, interaction, url.origin));
       }
       if (interaction.type === InteractionType.MESSAGE_COMPONENT && interaction.data.custom_id === 'close_recruitment_ticket') {
         return json(await closeTicket(env, interaction, ctx));
