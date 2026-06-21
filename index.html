@@ -168,6 +168,7 @@
 document.getElementById('ctaPostuler').href  = 'recrutement.html';
 document.getElementById('ctaPostuler2').href = 'recrutement.html';
 document.getElementById('ctaInfo').href      = 'info.html';
+function refreshRecruitmentStatus() {
 google.script.run.withSuccessHandler(function(res) {
   if (!res || !res.success) return;
   var map = {
@@ -192,6 +193,9 @@ google.script.run.withSuccessHandler(function(res) {
   ['ctaPostuler','ctaPostuler2'].forEach(function(id) {
     var el = document.getElementById(id);
     el.textContent = state.text;
+    el.style.opacity = '1';
+    el.style.pointerEvents = 'auto';
+    el.href = 'recrutement.html';
     if (res.status === 'closed') {
       el.removeAttribute('href');
       el.style.opacity = '.5';
@@ -199,6 +203,12 @@ google.script.run.withSuccessHandler(function(res) {
     }
   });
 }).getRecruitmentStatus();
+}
+refreshRecruitmentStatus();
+setInterval(refreshRecruitmentStatus, 5000);
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden) refreshRecruitmentStatus();
+});
 </script>
 
 </body>
