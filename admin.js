@@ -52,7 +52,7 @@ function logout() {
 if (_authGet() === '1') showDashboard();
 
 // ── State ─────────────────────────────────────────────────────
-var allApps = [], currentFilter = 'all';
+var allApps = [], currentFilter = 'all', adminSearch = '';
 
 // ── Load ──────────────────────────────────────────────────────
 function loadApplications() {
@@ -64,7 +64,7 @@ function loadApplications() {
         if (res && res.success) {
           allApps = res.data || [];
           updateStats();
-          renderTable(allApps);
+          renderTable(getFilteredApps());
         } else {
           document.getElementById('tableContainer').innerHTML =
             '<div class="empty-state"><p>Erreur serveur</p><p>' + (res ? esc(res.error) : 'Réponse vide') + '</p></div>';
@@ -95,7 +95,57 @@ function filterApps(f, btn) {
   currentFilter = f;
   document.querySelectorAll('.ftab').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
-  renderTable(f === 'all' ? allApps : allApps.filter(function(a){ return a.statut === f; }));
+  renderTable(getFilteredApps());
+}
+
+function setAdminSearch(value) {
+  adminSearch = String(value || '').trim().toLowerCase();
+  renderTable(getFilteredApps());
+}
+
+function getFilteredApps() {
+  return allApps.filter(function(a) {
+    if (currentFilter !== 'all' && a.statut !== currentFilter) return false;
+    if (!adminSearch) return true;
+    var score = a.scores && a.scores.global !== undefined ? a.scores.global : '';
+    var haystack = [a.nomRP,a.prenomRP,a.pseudoDiscord,a.email,a.statut,score].join(' ').toLowerCase();
+    return haystack.indexOf(adminSearch) !== -1;
+  });
+}
+
+function switchAdminSection(section, btn) {
+  document.getElementById('applicationsPanel').style.display = section === 'applications' ? 'block' : 'none';
+  document.getElementById('recruitmentStatusPanel').style.display = section === 'status' ? 'block' : 'none';
+  document.querySelectorAll('#adminTabApplications,#adminTabStatus').forEach(function(el){ el.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  if (section === 'status') loadRecruitmentStatus();
+}
+
+function paintRecruitmentStatus(status) {
+  document.querySelectorAll('#recruitmentStatusControls [data-status]').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.status === status);
+  });
+  var labels = {open:'Ouvert',limited:'Limité',closed:'Fermé'};
+  document.getElementById('recruitmentStatusFeedback').textContent = 'Statut actuel : ' + (labels[status] || status);
+}
+
+function loadRecruitmentStatus() {
+  google.script.run
+    .withSuccessHandler(function(res){ if(res && res.success) paintRecruitmentStatus(res.status); })
+    .withFailureHandler(function(){ document.getElementById('recruitmentStatusFeedback').textContent = 'Impossible de charger le statut.'; })
+    .getRecruitmentStatus();
+}
+
+function saveRecruitmentStatus(status, btn) {
+  paintRecruitmentStatus(status);
+  document.getElementById('recruitmentStatusFeedback').textContent = 'Enregistrement...';
+  google.script.run
+    .withSuccessHandler(function(res){
+      if (res && res.success) paintRecruitmentStatus(res.status);
+      else document.getElementById('recruitmentStatusFeedback').textContent = 'Erreur lors de l’enregistrement.';
+    })
+    .withFailureHandler(function(){ document.getElementById('recruitmentStatusFeedback').textContent = 'Erreur lors de l’enregistrement.'; })
+    .setRecruitmentStatus(status);
 }
 
 // ── Render table ──────────────────────────────────────────────
@@ -140,21 +190,21 @@ function setStatus(id, s) {
     app.statut = s;
   }
   updateStats();
-  renderTable(currentFilter === 'all' ? allApps : allApps.filter(function(a){ return a.statut === currentFilter; }));
+  renderTable(getFilteredApps());
 
   google.script.run
     .withSuccessHandler(function(res) {
       if (!res.success) {
         if (app && previous !== null) app.statut = previous;
         updateStats();
-        renderTable(currentFilter === 'all' ? allApps : allApps.filter(function(a){ return a.statut === currentFilter; }));
+        renderTable(getFilteredApps());
         alert(res && res.error ? res.error : 'Impossible de modifier le statut.');
       }
     })
     .withFailureHandler(function(err) {
       if (app && previous !== null) app.statut = previous;
       updateStats();
-      renderTable(currentFilter === 'all' ? allApps : allApps.filter(function(a){ return a.statut === currentFilter; }));
+      renderTable(getFilteredApps());
       alert(err ? err.toString() : 'Impossible de modifier le statut.');
     })
     .updateStatus(id, s);

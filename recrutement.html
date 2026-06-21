@@ -294,6 +294,7 @@
   <div class="success-ttl">Candidature envoyée !</div>
   <div class="success-msg">Votre dossier a été transmis à l'équipe de recrutement du SASP Nord. Vous serez contacté dans les meilleurs délais.</div>
   <div class="success-id" id="successId"></div>
+  <a class="btn btn-primary" style="margin-top:22px" href="https://discord.gg/KsSmxnNKWV" target="_blank" rel="noopener">Rejoindre le Discord</a>
   <button class="btn btn-ghost" style="margin-top:28px" onclick="window.location.href='recrutement.html'">Soumettre une nouvelle candidature</button>
 </div>
 
@@ -345,8 +346,6 @@ function showErr(id,show){
 function v1(){
   let ok=true;
   ['nomRP','prenomRP','dateNaissanceRP','telephoneRP','pseudoDiscord'].forEach(f=>{const v=(document.getElementById(f)?.value||'').trim();showErr(f,!v);if(!v)ok=false;});
-  const em=(document.getElementById('email')?.value||'').trim();
-  const ve=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);showErr('email',!ve);if(!ve)ok=false;
   const p=document.querySelector('[name="permisConduire"]:checked');showErr('permisConduire',!p);if(!p)ok=false;
   if(!ok)document.querySelector('.show')?.scrollIntoView({behavior:'smooth',block:'center'});
   return ok;
@@ -399,11 +398,19 @@ function collect(){
 
 function submitForm(){
   if(!v3())return;
+  const lastSubmit=Number(localStorage.getItem('sasp_last_submit')||0);
+  const waitMs=15*60*1000-(Date.now()-lastSubmit);
+  if(waitMs>0){
+    const minutes=Math.ceil(waitMs/60000);
+    alert('Une candidature a déjà été envoyée depuis ce navigateur. Réessayez dans '+minutes+' minute(s).');
+    return;
+  }
   const btn=document.getElementById('submitBtn'),txt=document.getElementById('submitTxt');
   btn.disabled=true;txt.innerHTML='<span class="spinner" style="display:inline-block;vertical-align:middle"></span> Envoi…';
   const data=collect();data.scores=calculateScores(data.qcm,data.openQuestions);
   google.script.run
     .withSuccessHandler(res=>{
+      localStorage.setItem('sasp_last_submit',String(Date.now()));
       sessionStorage.removeItem('sasp_draft');
       document.getElementById('successId').textContent=res.success?'📁 Référence : #'+res.id:'';
       document.getElementById('successScreen').classList.add('open');
@@ -414,6 +421,13 @@ function submitForm(){
 
 restoreDraft();
 updateProgress();
+google.script.run.withSuccessHandler(function(res){
+  if(res && res.success && res.status === 'closed'){
+    const btn=document.getElementById('submitBtn');
+    btn.disabled=true;
+    document.getElementById('submitTxt').textContent='Recrutement fermé';
+  }
+}).getRecruitmentStatus();
 </script>
 </body>
 </html>

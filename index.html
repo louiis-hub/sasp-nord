@@ -123,7 +123,7 @@
     </div>
 
     <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,var(--bgCard) 0%,rgba(29,78,216,.08) 100%);border-color:var(--border1)">
-      <div class="about-label">Recrutement ouvert</div>
+      <div class="about-label" id="homeRecruitmentStatus">Recrutement ouvert</div>
       <h2 style="font-size:1.4rem;margin-bottom:14px">Rejoignez nos rangs</h2>
       <p class="about-text">
         Vous souhaitez intégrer l'une des factions les plus exigeantes du serveur ?
@@ -159,10 +159,31 @@
   </p>
 </footer>
 
+<script src="config.js"></script>
+<script src="backend-shim.js"></script>
 <script>
 document.getElementById('ctaPostuler').href  = 'recrutement.html';
 document.getElementById('ctaPostuler2').href = 'recrutement.html';
 document.getElementById('ctaInfo').href      = 'info.html';
+google.script.run.withSuccessHandler(function(res) {
+  if (!res || !res.success) return;
+  var map = {
+    open:{label:'Recrutement ouvert', text:'Déposer ma candidature'},
+    limited:{label:'Recrutement limité', text:'Postuler - places limitées'},
+    closed:{label:'Recrutement fermé', text:'Recrutement fermé'}
+  };
+  var state = map[res.status] || map.open;
+  document.getElementById('homeRecruitmentStatus').textContent = state.label;
+  ['ctaPostuler','ctaPostuler2'].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.textContent = state.text;
+    if (res.status === 'closed') {
+      el.removeAttribute('href');
+      el.style.opacity = '.5';
+      el.style.pointerEvents = 'none';
+    }
+  });
+}).getRecruitmentStatus();
 </script>
 
 </body>

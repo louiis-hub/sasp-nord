@@ -106,6 +106,12 @@
       </div>
     </div>
 
+    <div class="filter-tabs" style="margin-bottom:22px">
+      <button class="ftab active" id="adminTabApplications" onclick="switchAdminSection('applications',this)">Gestion des recrutements</button>
+      <button class="ftab" id="adminTabStatus" onclick="switchAdminSection('status',this)">Statut des recrutements</button>
+    </div>
+
+    <section id="applicationsPanel">
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-total"><div class="stat-card"><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Total</div></div></div>
@@ -115,6 +121,9 @@
     </div>
 
     <!-- Filtres -->
+    <div style="margin-bottom:14px">
+      <input class="form-control" id="adminSearch" type="search" placeholder="Rechercher par nom RP, Discord, statut ou score" oninput="setAdminSearch(this.value)">
+    </div>
     <div class="filter-tabs">
       <button class="ftab active" onclick="filterApps('all',this)">Toutes</button>
       <button class="ftab" onclick="filterApps('En attente',this)">En attente</button>
@@ -129,6 +138,22 @@
         <div class="loader"><div class="spinner"></div> Chargement…</div>
       </div>
     </div>
+    </section>
+
+    <section id="recruitmentStatusPanel" style="display:none">
+      <div class="card">
+        <div class="card-head">
+          <div><div class="card-title">Statut public du recrutement</div><div class="card-sub">VISIBLE SUR LA PAGE D'ACCUEIL</div></div>
+        </div>
+        <p style="color:var(--t2);margin-bottom:20px">Choisis l'état affiché aux candidats. La modification est publiée immédiatement.</p>
+        <div class="filter-tabs" id="recruitmentStatusControls">
+          <button class="ftab" data-status="open" onclick="saveRecruitmentStatus('open',this)">Ouvert</button>
+          <button class="ftab" data-status="limited" onclick="saveRecruitmentStatus('limited',this)">Limité</button>
+          <button class="ftab" data-status="closed" onclick="saveRecruitmentStatus('closed',this)">Fermé</button>
+        </div>
+        <div id="recruitmentStatusFeedback" style="margin-top:18px;color:var(--t2)">Chargement...</div>
+      </div>
+    </section>
 
   </main>
 </div>
