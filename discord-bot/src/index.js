@@ -74,6 +74,31 @@ async function serveRecruitment(env, url) {
   });
 }
 
+async function sendQcmRecap(env, access, payload, applicationId) {
+  const answers = payload.qcm || {};
+  const scores = payload.scores || {};
+  const fields = ['q1','q2','q3','q4','q5','q6'].map((key, index) => ({
+    name: `Question ${index + 1}`,
+    value: String(answers[key] || 'Aucune réponse').slice(0, 1000),
+    inline: false
+  }));
+  await discord(env, `/channels/${access.channelId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({
+      content: `<@${access.userId}> <@&${env.RECRUITMENT_PING_ROLE_ID}>`,
+      allowed_mentions: { parse: [], users: [access.userId], roles: [env.RECRUITMENT_PING_ROLE_ID] },
+      embeds: [{
+        title: 'QCM terminé — Récapitulatif',
+        description: `**Candidat :** ${String(payload.prenomRP || '')} ${String(payload.nomRP || '')}\n**Score global :** ${scores.global ?? '-'} / 100\n**Référence :** #${applicationId}`,
+        color: 0xD99A32,
+        fields,
+        footer: { text: 'Le lien du QCM est maintenant désactivé' },
+        timestamp: new Date().toISOString()
+      }]
+    })
+  });
+}
+
 async function proxyAppsScript(request, env, url) {
   const token = url.searchParams.get('token');
   const access = await getTicketAccess(env, token);
@@ -126,6 +151,14 @@ async function proxyAppsScript(request, env, url) {
     }
     if (linkedApplicationId) {
       await env.TICKET_ACCESS.put(`application:${linkedApplicationId}`, JSON.stringify(access), { expirationTtl: 90 * 24 * 60 * 60 });
+      if (!await env.TICKET_ACCESS.get(`qcm-completed:${access.channelId}`)) {
+        await sendQcmRecap(env, access, submittedPayload || {}, linkedApplicationId);
+        await Promise.all([
+          env.TICKET_ACCESS.put(`qcm-completed:${access.channelId}`, linkedApplicationId, { expirationTtl: 90 * 24 * 60 * 60 }),
+          env.TICKET_ACCESS.delete(`token:${token}`),
+          env.TICKET_ACCESS.delete(`channel:${access.channelId}`)
+        ]);
+      }
     }
   }
   return new Response(responseText, {
@@ -167,13 +200,8 @@ async function applicationDecision(request, env) {
   const body = await request.json();
   const id = String(body.id || '');
   const status = String(body.status || '');
-  const appointmentDate = String(body.appointmentDate || '');
-  const appointmentTime = String(body.appointmentTime || '');
   if (!id || !['Acceptée', 'Refusée'].includes(status)) {
     return corsJson(env, { success: false, error: 'Décision invalide' }, 400);
-  }
-  if (status === 'Acceptée' && (!appointmentDate || !appointmentTime)) {
-    return corsJson(env, { success: false, error: 'La date et l’heure du rendez-vous sont obligatoires' }, 400);
   }
 
   const ticket = await env.TICKET_ACCESS.get(`application:${id}`, 'json');
@@ -183,7 +211,7 @@ async function applicationDecision(request, env) {
 
   const accepted = status === 'Acceptée';
   const description = accepted
-    ? `Ta candidature est acceptée.\n\n**Rendez-vous :** ${appointmentDate.split('-').reverse().join('/')} à ${appointmentTime}\n\nMerci de te présenter quelques minutes en avance.`
+    ? 'Ta candidature est acceptée. Le service recrutement te communiquera la suite directement dans ce ticket.'
     : 'Ta candidature n’est pas retenue cette fois-ci. Tu pourras déposer une nouvelle candidature dans **24 heures**.';
   await discord(env, `/channels/${ticket.channelId}/messages`, {
     method: 'POST',
@@ -238,7 +266,7 @@ function ticketConfig(env, type) {
     recruitment: {
       prefix: 'recrutement',
       title: 'Recrutement SASP Nord',
-      description: 'Présente ta candidature et accède au questionnaire sécurisé.',
+      description: 'Le service recrutement lancera ton QCM lorsque tu seras prêt sur place.',
       categoryId: env.RECRUITMENT_CATEGORY_ID,
       staffRoleIds: [env.STAFF_ROLE_ID, env.RECRUITMENT_PING_ROLE_ID]
     },
@@ -418,18 +446,8 @@ async function createPanelTicket(env, interaction, origin, type) {
     })
   });
 
-  let token = null;
-  if (type === 'recruitment') {
-    token = crypto.randomUUID().replace(/-/g, '');
-    const ttl = 7 * 24 * 60 * 60;
-    await Promise.all([
-      env.TICKET_ACCESS.put(`token:${token}`, JSON.stringify({ userId: user.id, channelId: channel.id }), { expirationTtl: ttl }),
-      env.TICKET_ACCESS.put(`channel:${channel.id}`, token, { expirationTtl: ttl })
-    ]);
-  }
-
   const buttons = [];
-  if (token) buttons.push({ type: 2, style: 5, label: 'Accéder au questionnaire', url: `${origin}/recrutement?token=${token}` });
+  if (type === 'recruitment') buttons.push({ type: 2, style: 1, label: 'Lancer le QCM', custom_id: 'launch_recruitment_qcm' });
   buttons.push({ type: 2, style: 4, label: 'Fermer le ticket', custom_id: 'close_recruitment_ticket' });
 
   await discord(env, `/channels/${channel.id}/messages`, {
@@ -447,6 +465,68 @@ async function createPanelTicket(env, interaction, origin, type) {
   return {
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: { content: `Ton ticket a été créé : <#${channel.id}>`, flags: 64 }
+  };
+}
+
+async function launchRecruitmentQcm(env, interaction, origin) {
+  const channel = await discord(env, `/channels/${interaction.channel_id}`);
+  const topic = String(channel.topic || '');
+  const parts = topic.split(':');
+  const type = topic.startsWith('sasp-recruitment-user:') ? 'recruitment' : parts[1];
+  const ownerId = topic.startsWith('sasp-recruitment-user:') ? topic.replace('sasp-recruitment-user:', '') : parts[2];
+  const roles = interaction.member.roles || [];
+  const canLaunch = roles.includes(env.RECRUITMENT_PING_ROLE_ID) || roles.includes(env.STAFF_ROLE_ID);
+  if (!canLaunch) {
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: { content: 'Seul le service recrutement peut lancer le QCM.', flags: 64 }
+    };
+  }
+  if (type !== 'recruitment' || !ownerId) {
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: { content: 'Ce bouton fonctionne uniquement dans un ticket de recrutement.', flags: 64 }
+    };
+  }
+  if (await env.TICKET_ACCESS.get(`qcm-completed:${interaction.channel_id}`)) {
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: { content: 'Ce candidat a déjà terminé son QCM.', flags: 64 }
+    };
+  }
+  if (await env.TICKET_ACCESS.get(`channel:${interaction.channel_id}`)) {
+    return {
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: { content: 'Le QCM est déjà en cours dans ce ticket.', flags: 64 }
+    };
+  }
+
+  const token = crypto.randomUUID().replace(/-/g, '');
+  const ttl = 6 * 60 * 60;
+  await Promise.all([
+    env.TICKET_ACCESS.put(`token:${token}`, JSON.stringify({ userId: ownerId, channelId: interaction.channel_id }), { expirationTtl: ttl }),
+    env.TICKET_ACCESS.put(`channel:${interaction.channel_id}`, token, { expirationTtl: ttl })
+  ]);
+  await discord(env, `/channels/${interaction.channel_id}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({
+      content: `<@${ownerId}> ton QCM est prêt. Ce lien est personnel et ne pourra être utilisé qu’une seule fois.`,
+      allowed_mentions: { parse: [], users: [ownerId] },
+      embeds: [{
+        title: 'QCM de recrutement',
+        description: 'Lance le questionnaire uniquement lorsque le recruteur te le demande. Une fois envoyé, il sera définitivement verrouillé.',
+        color: 0x3B82F6
+      }],
+      components: [{
+        type: 1,
+        components: [{ type: 2, style: 5, label: 'Commencer le QCM', url: `${origin}/recrutement?token=${token}` }]
+      }]
+    })
+  });
+
+  return {
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: { content: 'Le lien du QCM a été envoyé au candidat.', flags: 64 }
   };
 }
 
@@ -606,6 +686,9 @@ export default {
       }
       if (interaction.type === InteractionType.MESSAGE_COMPONENT && interaction.data.custom_id === 'ticket_type_select') {
         return json(await createPanelTicket(env, interaction, url.origin, interaction.data.values?.[0]));
+      }
+      if (interaction.type === InteractionType.MESSAGE_COMPONENT && interaction.data.custom_id === 'launch_recruitment_qcm') {
+        return json(await launchRecruitmentQcm(env, interaction, url.origin));
       }
       if (interaction.type === InteractionType.MESSAGE_COMPONENT && interaction.data.custom_id === 'close_recruitment_ticket') {
         return json(await closePanelTicket(env, interaction, ctx));

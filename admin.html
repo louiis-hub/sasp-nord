@@ -166,30 +166,6 @@
 </div>
 
 <!-- ══ Modal fiche candidat ═══════════════════════════════════ -->
-<div class="modal-overlay" id="appointmentOverlay" onclick="if(event.target===this)closeAppointmentDialog()">
-  <div class="modal-box" style="max-width:520px">
-    <div class="modal-hd">
-      <div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--green);letter-spacing:2px;margin-bottom:4px">CANDIDATURE ACCEPTÉE</div>
-        <h2 style="font-size:1.25rem">Planifier le rendez-vous</h2>
-      </div>
-      <button class="btn-close" onclick="closeAppointmentDialog()">✕</button>
-    </div>
-    <div class="modal-body">
-      <p style="color:var(--t2);margin-bottom:20px">La date et l’heure seront envoyées directement dans le ticket Discord du candidat.</p>
-      <div class="form-grid-2">
-        <div class="form-group"><label class="form-label" for="appointmentDate">Date</label><input class="form-control" id="appointmentDate" type="date"></div>
-        <div class="form-group"><label class="form-label" for="appointmentTime">Heure</label><input class="form-control" id="appointmentTime" type="time"></div>
-      </div>
-      <div id="appointmentError" style="min-height:20px;color:var(--red);font-size:.82rem"></div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px">
-        <button class="btn btn-ghost" onclick="closeAppointmentDialog()">Annuler</button>
-        <button class="btn btn-green" onclick="confirmAppointmentDecision()">Accepter et envoyer</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal-box">
     <div class="modal-hd">
