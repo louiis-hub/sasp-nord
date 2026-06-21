@@ -80,23 +80,6 @@ h1{font-size:2rem} h2{font-size:1.5rem} h3{font-size:1.1rem}
   background:rgba(7,12,24,.4);opacity:.55;
 }
 
-/* ─ Bouton Recrutement ─ CTA distinct bleu ─ */
-.nav-recruit{
-  background:linear-gradient(135deg,rgba(29,78,216,.4),rgba(59,130,246,.28));
-  color:var(--blueLight);border-color:rgba(59,130,246,.5);
-  box-shadow:0 0 10px rgba(59,130,246,.15),inset 0 1px 0 rgba(255,255,255,.05);
-}
-.nav-recruit:not(.active):hover{
-  background:linear-gradient(135deg,rgba(29,78,216,.65),rgba(59,130,246,.5));
-  color:#fff;border-color:var(--blue);
-  box-shadow:0 0 20px rgba(59,130,246,.35),inset 0 1px 0 rgba(255,255,255,.08);
-  transform:translateY(-1px);
-}
-.nav-recruit.active{
-  background:rgba(11,18,32,.4);color:var(--t3);
-  border-color:rgba(51,65,85,.3);box-shadow:none;
-}
-
 /* ─ Bouton Admin ─ séparé visuellement ─ */
 .nav-admin{
   margin-left:6px;padding:6px 12px;font-size:.74rem;
@@ -123,7 +106,8 @@ h1{font-size:2rem} h2{font-size:1.5rem} h3{font-size:1.1rem}
   }
   .main-nav.open{display:flex}
   .nav-link{width:100%;text-align:center;justify-content:center}
-  .nav-recruit,.nav-admin{margin-left:0;padding-left:15px;border-left:1px solid rgba(51,65,85,.4)}
+  .nav-recruit{margin-left:0;padding-left:15px}
+  .nav-admin{margin-left:0;padding-left:15px;border-left:1px solid rgba(51,65,85,.4)}
 }
 
 /* ── Hero ─────────────────────────────────────────────────── */

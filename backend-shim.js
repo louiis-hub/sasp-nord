@@ -112,6 +112,15 @@
         if (API_URL) return jsonp('list', {}, success, failure);
         setTimeout(function(){ success({ success:true, data:read().slice().reverse() }); }, 140);
       },
+      getRecruitmentStatus:function(){
+        if (API_URL) return jsonp('recruitmentStatus', {}, success, failure);
+        setTimeout(function(){ success({success:true, status:localStorage.getItem('sasp_recruitment_status') || 'open'}); }, 80);
+      },
+      setRecruitmentStatus:function(status){
+        if (API_URL) return jsonp('setRecruitmentStatus', {status:status}, success, failure);
+        localStorage.setItem('sasp_recruitment_status', status);
+        setTimeout(function(){ success({success:true, status:status}); }, 80);
+      },
       updateStatus:function(id, status){
         if (API_URL) return jsonp('status', { id:id, status:status }, success, failure);
         setTimeout(function(){
