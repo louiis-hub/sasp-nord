@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SASP Nord — Informations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>window.SASP_PAGE='info';</script>
+</head>
+<body>
+<header class="site-header" style="position:sticky;top:0;z-index:200">
+  <a id="navLogo" href="index.html" style="display:flex;align-items:center;gap:14px;text-decoration:none;flex-shrink:0">
+    <img src="Sasp_logo.webp" alt="SASP Nord" style="height:44px;width:auto;object-fit:contain;filter:drop-shadow(0 0 10px rgba(59,130,246,.4))">
+    <div>
+      <div class="brand-name">SASP NORD</div>
+      <div class="brand-sub">San Andreas State Police</div>
+    </div>
+  </a>
+
+  <nav class="main-nav" id="mainNav">
+    <a class="nav-link" data-page="home" href="index.html">Accueil</a>
+    <a class="nav-link" data-page="info" href="info.html">Informations</a>
+    <a class="nav-link nav-recruit" data-page="recrutement" href="recrutement.html">Recrutement</a>
+    <a class="nav-link nav-admin" data-page="admin" href="admin.html">Admin</a>
+  </nav>
+
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="status-badge" style="display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--t3);font-family:'Share Tech Mono',monospace">
+      <span class="status-dot"></span><span>ACTIF</span>
+    </div>
+    <button class="nav-toggle" onclick="document.getElementById('mainNav').classList.toggle('open')" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<script>
+(function(){
+  var cur = window.SASP_PAGE || 'home';
+  function goSoft(url) {
+    if (!url) return;
+    document.body.classList.add('page-leave');
+    setTimeout(function() { window.location.href = url; }, 55);
+  }
+  document.querySelectorAll('.nav-link[data-page]').forEach(function(a){
+    if (a.dataset.page === cur) {
+      a.classList.add('active');
+      a.removeAttribute('href');
+    } else {
+      a.addEventListener('click', function(e) { e.preventDefault(); goSoft(this.href); });
+    }
+  });
+  document.getElementById('navLogo').addEventListener('click', function(e) {
+    if (cur === 'home') return;
+    e.preventDefault();
+    goSoft(this.href);
+  });
+})();
+</script>
+
+<div class="coming-soon">
+  <div class="coming-icon">🛡️</div>
+  <h1 class="coming-title">Page en construction</h1>
+  <p class="coming-txt">
+    Cette section sera bientôt disponible avec les règlements, grades,
+    procédures et informations internes du SASP Nord.
+  </p>
+  <div class="coming-bar"><div class="coming-fill"></div></div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--t3);letter-spacing:2px;margin-bottom:24px">EN COURS DE RÉDACTION</div>
+  <a href="#" id="backHome" class="btn btn-ghost">← Retour à l'accueil</a>
+</div>
+
+<script>
+document.getElementById('backHome').href = 'index.html';
+document.getElementById('backHome').addEventListener('click', function(e) {
+  e.preventDefault();
+  document.body.classList.add('page-leave');
+  setTimeout(function() {
+    window.location.href = 'index.html';
+  }, 55);
+});
+</script>
+
+</body>
+</html>

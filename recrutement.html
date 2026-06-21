@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SASP Nord — Recrutement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>window.SASP_PAGE='recrutement';</script>
+</head>
+<body>
+<header class="site-header" style="position:sticky;top:0;z-index:200">
+  <a id="navLogo" href="index.html" style="display:flex;align-items:center;gap:14px;text-decoration:none;flex-shrink:0">
+    <img src="Sasp_logo.webp" alt="SASP Nord" style="height:44px;width:auto;object-fit:contain;filter:drop-shadow(0 0 10px rgba(59,130,246,.4))">
+    <div>
+      <div class="brand-name">SASP NORD</div>
+      <div class="brand-sub">San Andreas State Police</div>
+    </div>
+  </a>
+
+  <nav class="main-nav" id="mainNav">
+    <a class="nav-link" data-page="home" href="index.html">Accueil</a>
+    <a class="nav-link" data-page="info" href="info.html">Informations</a>
+    <a class="nav-link nav-recruit" data-page="recrutement" href="recrutement.html">Recrutement</a>
+    <a class="nav-link nav-admin" data-page="admin" href="admin.html">Admin</a>
+  </nav>
+
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="status-badge" style="display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--t3);font-family:'Share Tech Mono',monospace">
+      <span class="status-dot"></span><span>ACTIF</span>
+    </div>
+    <button class="nav-toggle" onclick="document.getElementById('mainNav').classList.toggle('open')" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<script>
+(function(){
+  var cur = window.SASP_PAGE || 'home';
+  function goSoft(url) {
+    if (!url) return;
+    document.body.classList.add('page-leave');
+    setTimeout(function() { window.location.href = url; }, 55);
+  }
+  document.querySelectorAll('.nav-link[data-page]').forEach(function(a){
+    if (a.dataset.page === cur) {
+      a.classList.add('active');
+      a.removeAttribute('href');
+    } else {
+      a.addEventListener('click', function(e) { e.preventDefault(); goSoft(this.href); });
+    }
+  });
+  document.getElementById('navLogo').addEventListener('click', function(e) {
+    if (cur === 'home') return;
+    e.preventDefault();
+    goSoft(this.href);
+  });
+})();
+</script>
+
+<main class="main-wrap">
+
+  <div style="margin-bottom:32px">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--blue);letter-spacing:3px;margin-bottom:8px">DÉPÔT DE CANDIDATURE</div>
+    <h1>Rejoindre le SASP Nord</h1>
+    <p style="color:var(--t2);margin-top:8px;font-size:.9rem">Remplissez ce formulaire avec soin. Chaque réponse est analysée par notre système de recrutement automatique avant examen par un recruteur.</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="steps-row">
+      <div class="progress-track" id="progressTrack" style="width:0%"></div>
+      <div class="step active" id="stepEl1"><div class="step-circle">1</div><div class="step-lbl">Infos<br>générales</div></div>
+      <div class="step" id="stepEl2"><div class="step-circle">2</div><div class="step-lbl">Questions<br>RP / QCM</div></div>
+      <div class="step" id="stepEl3"><div class="step-circle">3</div><div class="step-lbl">Mises en<br>situation</div></div>
+    </div>
+    <div class="pbar-outer"><div class="pbar-inner" id="pbarInner" style="width:0%"></div></div>
+  </div>
+
+  <!-- ══ SECTION 1 ══════════════════════════════════════════ -->
+  <div class="section active" id="section1">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">👤</div>
+        <div><div class="card-title">Informations générales</div><div class="card-sub">IDENTITÉ ROLEPLAY · SECTION 1 / 3</div></div>
+      </div>
+      <div class="grid2">
+        <div class="form-group">
+          <label class="form-label">Nom RP <span class="req">*</span></label>
+          <input class="form-control" id="nomRP" type="text" placeholder="Ex : Morrison">
+          <div class="field-err" id="err-nomRP">Ce champ est obligatoire.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prénom RP <span class="req">*</span></label>
+          <input class="form-control" id="prenomRP" type="text" placeholder="Ex : James">
+          <div class="field-err" id="err-prenomRP">Ce champ est obligatoire.</div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="form-group">
+          <label class="form-label">Date de naissance RP <span class="req">*</span></label>
+          <input class="form-control" id="dateNaissanceRP" type="date">
+          <div class="field-err" id="err-dateNaissanceRP">Ce champ est obligatoire.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Numéro de téléphone RP <span class="req">*</span></label>
+          <input class="form-control" id="telephoneRP" type="text" placeholder="Ex : 555-0198">
+          <div class="field-err" id="err-telephoneRP">Ce champ est obligatoire.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Adresse email <span class="req">*</span></label>
+        <input class="form-control" id="email" type="email" placeholder="votre@email.com">
+        <div class="field-err" id="err-email">Veuillez saisir un email valide.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Possédez-vous le permis de conduire RP ? <span class="req">*</span></label>
+        <div class="toggle-row">
+          <label class="toggle-opt" id="tog-oui"><input type="radio" name="permisConduire" value="Oui" id="permis-oui"> ✓ Oui</label>
+          <label class="toggle-opt" id="tog-non"><input type="radio" name="permisConduire" value="Non" id="permis-non"> ✗ Non</label>
+        </div>
+        <div class="field-err" id="err-permisConduire">Veuillez sélectionner une option.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ancienne expérience dans les forces de l'ordre</label>
+        <textarea class="form-control tall" id="experienceForces" placeholder="Faction, grade, durée... Laissez vide si aucune expérience."></textarea>
+      </div>
+    </div>
+    <div class="form-nav">
+      <div></div>
+      <button class="btn btn-primary" onclick="nextStep()">Continuer <span>→</span></button>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 2 ══════════════════════════════════════════ -->
+  <div class="section" id="section2">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">📋</div>
+        <div><div class="card-title">Questions à choix multiple</div><div class="card-sub">ÉVALUATION RP · ANTI-MÉTAGAMING · FEARRP</div></div>
+      </div>
+
+      <div class="qcm-item">
+        <div class="qcm-num">QUESTION 01 / 06 — CONNAISSANCE</div>
+        <div class="qcm-q">Que signifie SASP ?</div>
+        <div class="radio-group" id="rg-q1">
+          <label class="radio-opt" onclick="selectRadio('q1',this)"><input type="radio" name="q1" value="San Andreas State Police"><div class="r-letter">A</div><div class="r-text">San Andreas State Police</div></label>
+          <label class="radio-opt" onclick="selectRadio('q1',this)"><input type="radio" name="q1" value="San Andreas Special Patrol"><div class="r-letter">B</div><div class="r-text">San Andreas Special Patrol</div></label>
+          <label class="radio-opt" onclick="selectRadio('q1',this)"><input type="radio" name="q1" value="State Agency Security Patrol"><div class="r-letter">C</div><div class="r-text">State Agency Security Patrol</div></label>
+          <label class="radio-opt" onclick="selectRadio('q1',this)"><input type="radio" name="q1" value="San Andreas Sheriff Patrol"><div class="r-letter">D</div><div class="r-text">San Andreas Sheriff Patrol</div></label>
+        </div>
+        <div class="field-err" id="err-q1">Veuillez sélectionner une réponse.</div>
+      </div>
+
+      <div class="qcm-item">
+        <div class="qcm-num">QUESTION 02 / 06 — CONTEXTE RP</div>
+        <div class="qcm-q">Vous voyez une voiture jaune avec 4 occupants à bord. Vous l'avez croisée plusieurs fois dans la journée. Que faites-vous ?</div>
+        <div class="radio-group" id="rg-q2">
+          <label class="radio-opt" onclick="selectRadio('q2',this)"><input type="radio" name="q2" value="Je la contrôle immédiatement"><div class="r-letter">A</div><div class="r-text">Je la contrôle immédiatement</div></label>
+          <label class="radio-opt" onclick="selectRadio('q2',this)"><input type="radio" name="q2" value="Je la prends en chasse"><div class="r-letter">B</div><div class="r-text">Je la prends en chasse</div></label>
+          <label class="radio-opt" onclick="selectRadio('q2',this)"><input type="radio" name="q2" value="Rien sauf élément RP justifiant une intervention"><div class="r-letter">C</div><div class="r-text">Rien sauf élément RP justifiant une intervention</div></label>
+          <label class="radio-opt" onclick="selectRadio('q2',this)"><input type="radio" name="q2" value="J'appelle tous les agents disponibles"><div class="r-letter">D</div><div class="r-text">J'appelle tous les agents disponibles</div></label>
+        </div>
+        <div class="field-err" id="err-q2">Veuillez sélectionner une réponse.</div>
+      </div>
+
+      <div class="qcm-item">
+        <div class="qcm-num">QUESTION 03 / 06 — MÉTAGAMING</div>
+        <div class="qcm-q">Un ami Discord vous informe qu'un braquage va avoir lieu dans 10 minutes. Que faites-vous ?</div>
+        <div class="radio-group" id="rg-q3">
+          <label class="radio-opt" onclick="selectRadio('q3',this)"><input type="radio" name="q3" value="Je me rends sur place"><div class="r-letter">A</div><div class="r-text">Je me rends sur place</div></label>
+          <label class="radio-opt" onclick="selectRadio('q3',this)"><input type="radio" name="q3" value="Je préviens mes collègues"><div class="r-letter">B</div><div class="r-text">Je préviens mes collègues</div></label>
+          <label class="radio-opt" onclick="selectRadio('q3',this)"><input type="radio" name="q3" value="J'ignore l'information car elle est HRP"><div class="r-letter">C</div><div class="r-text">J'ignore l'information car elle est HRP</div></label>
+          <label class="radio-opt" onclick="selectRadio('q3',this)"><input type="radio" name="q3" value="Je prépare une embuscade"><div class="r-letter">D</div><div class="r-text">Je prépare une embuscade</div></label>
+        </div>
+        <div class="field-err" id="err-q3">Veuillez sélectionner une réponse.</div>
+      </div>
+
+      <div class="qcm-item">
+        <div class="qcm-num">QUESTION 04 / 06 — FEAR RP</div>
+        <div class="qcm-q">Vous êtes seul face à 5 individus armés.</div>
+        <div class="radio-group" id="rg-q4">
+          <label class="radio-opt" onclick="selectRadio('q4',this)"><input type="radio" name="q4" value="J'ouvre le feu"><div class="r-letter">A</div><div class="r-text">J'ouvre le feu</div></label>
+          <label class="radio-opt" onclick="selectRadio('q4',this)"><input type="radio" name="q4" value="Je tente de fuir"><div class="r-letter">B</div><div class="r-text">Je tente de fuir</div></label>
+          <label class="radio-opt" onclick="selectRadio('q4',this)"><input type="radio" name="q4" value="Je coopère et privilégie ma survie"><div class="r-letter">C</div><div class="r-text">Je coopère et privilégie ma survie</div></label>
+          <label class="radio-opt" onclick="selectRadio('q4',this)"><input type="radio" name="q4" value="Je sors mon Taser"><div class="r-letter">D</div><div class="r-text">Je sors mon Taser</div></label>
+        </div>
+        <div class="field-err" id="err-q4">Veuillez sélectionner une réponse.</div>
+      </div>
+
+      <div class="qcm-item">
+        <div class="qcm-num">QUESTION 05 / 06 — SÉCURITÉ OPÉRATIONNELLE</div>
+        <div class="qcm-q">Un citoyen vous demande combien d'agents sont en service.</div>
+        <div class="radio-group" id="rg-q5">
+          <label class="radio-opt" onclick="selectRadio('q5',this)"><input type="radio" name="q5" value="Je donne le nombre exact"><div class="r-letter">A</div><div class="r-text">Je donne le nombre exact</div></label>
+          <label class="radio-opt" onclick="selectRadio('q5',this)"><input type="radio" name="q5" value="Je donne les matricules"><div class="r-letter">B</div><div class="r-text">Je donne les matricules</div></label>
+          <label class="radio-opt" onclick="selectRadio('q5',this)"><input type="radio" name="q5" value="Je reste vague ou refuse de communiquer cette information"><div class="r-letter">C</div><div class="r-text">Je reste vague ou refuse de communiquer cette information</div></label>
+          <label class="radio-opt" onclick="selectRadio('q5',this)"><input type="radio" name="q5" value="Je donne leur position"><div class="r-letter">D</div><div class="r-text">Je donne leur position</div></label>
+        </div>
+        <div class="field-err" id="err-q5">Veuillez sélectionner une réponse.</div>
+      </div>
+
+      <div class="qcm-item" style="margin-bottom:0">
+        <div class="qcm-num">QUESTION 06 / 06 — POWERGAMING</div>
+        <div class="qcm-q">Vous perdez de vue un véhicule lors d'une poursuite.</div>
+        <div class="radio-group" id="rg-q6">
+          <label class="radio-opt" onclick="selectRadio('q6',this)"><input type="radio" name="q6" value="Je continue à connaître sa position"><div class="r-letter">A</div><div class="r-text">Je continue à connaître sa position</div></label>
+          <label class="radio-opt" onclick="selectRadio('q6',this)"><input type="radio" name="q6" value="Je le retrouve par intuition"><div class="r-letter">B</div><div class="r-text">Je le retrouve par intuition</div></label>
+          <label class="radio-opt" onclick="selectRadio('q6',this)"><input type="radio" name="q6" value="Je transmets la perte visuelle et relance les recherches"><div class="r-letter">C</div><div class="r-text">Je transmets la perte visuelle et relance les recherches</div></label>
+          <label class="radio-opt" onclick="selectRadio('q6',this)"><input type="radio" name="q6" value="Je regarde son stream"><div class="r-letter">D</div><div class="r-text">Je regarde son stream</div></label>
+        </div>
+        <div class="field-err" id="err-q6">Veuillez sélectionner une réponse.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">💬</div>
+        <div><div class="card-title">Questions ouvertes</div><div class="card-sub">PERSONNALITÉ · MOTIVATION · ROLEPLAY</div></div>
+      </div>
+      <div class="grid2">
+        <div class="form-group"><label class="form-label">Vos 3 qualités <span class="req">*</span></label><textarea class="form-control" id="qualites" placeholder="Ex : Calme, rigoureux, à l'écoute..."></textarea><div class="field-err" id="err-qualites">Ce champ est obligatoire.</div></div>
+        <div class="form-group"><label class="form-label">Vos 3 défauts <span class="req">*</span></label><textarea class="form-control" id="defauts" placeholder="Soyez honnête, c'est apprécié..."></textarea><div class="field-err" id="err-defauts">Ce champ est obligatoire.</div></div>
+      </div>
+      <div class="form-group"><label class="form-label">Pourquoi souhaitez-vous rejoindre le SASP Nord ? <span class="req">*</span></label><textarea class="form-control tall" id="pourquoiSASP" placeholder="Motivations, objectifs, vision de la faction..."></textarea><div class="field-err" id="err-pourquoiSASP">Ce champ est obligatoire.</div></div>
+      <div class="form-group"><label class="form-label">Que représente le RP pour vous ? <span class="req">*</span></label><textarea class="form-control tall" id="rpPourVous" placeholder="Votre vision du jeu de rôle..."></textarea><div class="field-err" id="err-rpPourVous">Ce champ est obligatoire.</div></div>
+      <div class="form-group"><label class="form-label">Décrivez le métier d'agent du SASP <span class="req">*</span></label><textarea class="form-control tall" id="descriptionMetier" placeholder="Vos représentations du rôle d'agent..."></textarea><div class="field-err" id="err-descriptionMetier">Ce champ est obligatoire.</div></div>
+      <div class="grid2">
+        <div class="form-group"><label class="form-label">Grade visé à terme <span class="req">*</span></label><textarea class="form-control" id="gradeVise" placeholder="Ex : Inspecteur, Lieutenant..."></textarea><div class="field-err" id="err-gradeVise">Ce champ est obligatoire.</div></div>
+        <div class="form-group"><label class="form-label">Réaction face à la critique <span class="req">*</span></label><textarea class="form-control" id="reactionCritique" placeholder="Comment gérez-vous les retours négatifs ?"></textarea><div class="field-err" id="err-reactionCritique">Ce champ est obligatoire.</div></div>
+      </div>
+      <div class="grid2">
+        <div class="form-group"><label class="form-label">Vos passions HRP <span class="req">*</span></label><textarea class="form-control" id="passionsHRP" placeholder="Loisirs, activités hors jeu..."></textarea><div class="field-err" id="err-passionsHRP">Ce champ est obligatoire.</div></div>
+        <div class="form-group"><label class="form-label">Si vous étiez un animal, lequel ? <span class="req">*</span></label><textarea class="form-control" id="animal" placeholder="Et pourquoi ce choix ?"></textarea><div class="field-err" id="err-animal">Ce champ est obligatoire.</div></div>
+      </div>
+      <div class="form-group"><label class="form-label">Pourquoi vous plutôt qu'un autre ? <span class="req">*</span></label><textarea class="form-control tall" id="pourquoiVous" placeholder="Convainquez notre équipe de recrutement..."></textarea><div class="field-err" id="err-pourquoiVous">Ce champ est obligatoire.</div></div>
+    </div>
+
+    <div class="form-nav">
+      <button class="btn btn-ghost" onclick="prevStep()">← Retour</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 3 ══════════════════════════════════════════ -->
+  <div class="section" id="section3">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">🚨</div>
+        <div><div class="card-title">Mises en situation RP</div><div class="card-sub">SCÉNARIOS OPÉRATIONNELS · SECTION 3 / 3</div></div>
+      </div>
+      <p style="font-size:.85rem;color:var(--t2);margin-bottom:24px;line-height:1.6">Répondez à chaque situation de manière détaillée et immersive. Décrivez vos actions pas à pas comme si vous étiez en jeu.</p>
+
+      <div class="form-group">
+        <div class="qcm-num" style="margin-bottom:6px">SITUATION 01 / 03 — POURSUITE À HAUT RISQUE</div>
+        <div class="qcm-q" style="margin-bottom:14px">Vous patroulez seul sur l'autoroute quand un véhicule refuse de s'arrêter à votre contrôle. Une poursuite s'engage à grande vitesse. Après quelques minutes, le suspect entre dans une zone résidentielle densément peuplée. Décrivez l'intégralité de vos actions : décision d'engager la poursuite, communications radio, sécurité des civils, et conclusion de l'intervention.</div>
+        <textarea class="form-control xl" id="situation1" placeholder="Décrivez vos actions de manière détaillée et chronologique..."></textarea>
+        <div class="field-err" id="err-situation1">Ce champ est obligatoire.</div>
+      </div>
+
+      <div class="divider"><span>SITUATION SUIVANTE</span></div>
+
+      <div class="form-group">
+        <div class="qcm-num" style="margin-bottom:6px">SITUATION 02 / 03 — INTERPELLATION SOUS TENSION</div>
+        <div class="qcm-q" style="margin-bottom:14px">Vous effectuez un contrôle routier de nuit. Deux individus descendent du véhicule, visiblement nerveux. L'un d'eux garde une main dans le dos. Votre équipier est à 5 minutes. Vous êtes seul. Décrivez étape par étape comment vous gérez la situation, vos communications et vos décisions tactiques jusqu'à l'arrivée des renforts.</div>
+        <textarea class="form-control xl" id="situation2" placeholder="Décrivez votre gestion de la situation en détail..."></textarea>
+        <div class="field-err" id="err-situation2">Ce champ est obligatoire.</div>
+      </div>
+
+      <div class="divider"><span>SITUATION SUIVANTE</span></div>
+
+      <div class="form-group" style="margin-bottom:0">
+        <div class="qcm-num" style="margin-bottom:6px">SITUATION 03 / 03 — DILEMME ÉTHIQUE</div>
+        <div class="qcm-q" style="margin-bottom:14px">En patrouille avec votre équipier — un agent senior très apprécié — vous l'observez accepter de l'argent d'un contrevenant pour fermer les yeux sur une infraction grave. Il vous dit : "Entre collègues, ça reste entre nous." Décrivez votre réaction immédiate, vos actions à court et long terme, et comment vous concilieriez votre devoir d'intégrité avec la relation professionnelle.</div>
+        <textarea class="form-control xl" id="situation3" placeholder="Décrivez votre réaction et vos décisions..."></textarea>
+        <div class="field-err" id="err-situation3">Ce champ est obligatoire.</div>
+      </div>
+    </div>
+
+    <div class="form-nav">
+      <button class="btn btn-ghost" onclick="prevStep()">← Retour</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">
+        <span id="submitTxt">Soumettre ma candidature</span>
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<!-- Success -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✅</div>
+  <div class="success-ttl">Candidature envoyée !</div>
+  <div class="success-msg">Votre dossier a été transmis à l'équipe de recrutement du SASP Nord. Vous serez contacté dans les meilleurs délais.</div>
+  <div class="success-id" id="successId"></div>
+  <button class="btn btn-ghost" style="margin-top:28px" onclick="window.location.href='recrutement.html'">Soumettre une nouvelle candidature</button>
+</div>
+
+<div class="save-toast" id="saveToast"><span class="save-dot"></span> Brouillon sauvegardé</div>
+
+<script src="scoring.js"></script>
+<script src="backend-shim.js"></script>
+
+<script>
+let currentStep = 1;
+
+function updateProgress() {
+  const pct = [0,50,100][currentStep-1];
+  document.getElementById('progressTrack').style.width = pct+'%';
+  document.getElementById('pbarInner').style.width     = pct+'%';
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('stepEl'+i);
+    el.className = 'step'+(i<currentStep?' done':i===currentStep?' active':'');
+  });
+  document.querySelectorAll('.section').forEach((s,i) => s.classList.toggle('active',i+1===currentStep));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function nextStep(){ if(currentStep===1&&!v1())return; if(currentStep===2&&!v2())return; if(currentStep<3){currentStep++;updateProgress();} }
+function prevStep(){ if(currentStep>1){currentStep--;updateProgress();} }
+
+function selectRadio(name,el){
+  const inp=el.querySelector('input[type="radio"]');
+  if(inp)inp.checked=true;
+  document.querySelectorAll('#rg-'+name+' .radio-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  autosave();
+}
+
+document.querySelectorAll('[name="permisConduire"]').forEach(r=>{
+  r.addEventListener('change',function(){
+    document.getElementById('tog-oui').className='toggle-opt'+(this.value==='Oui'?' yes':'');
+    document.getElementById('tog-non').className='toggle-opt'+(this.value==='Non'?' no':'');
+    autosave();
+  });
+});
+
+function showErr(id,show){
+  const e=document.getElementById('err-'+id); if(e)e.classList.toggle('show',show);
+  const i=document.getElementById(id); if(i)i.classList.toggle('err',show);
+}
+
+function v1(){
+  let ok=true;
+  ['nomRP','prenomRP','dateNaissanceRP','telephoneRP'].forEach(f=>{const v=(document.getElementById(f)?.value||'').trim();showErr(f,!v);if(!v)ok=false;});
+  const em=(document.getElementById('email')?.value||'').trim();
+  const ve=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);showErr('email',!ve);if(!ve)ok=false;
+  const p=document.querySelector('[name="permisConduire"]:checked');showErr('permisConduire',!p);if(!p)ok=false;
+  if(!ok)document.querySelector('.show')?.scrollIntoView({behavior:'smooth',block:'center'});
+  return ok;
+}
+
+function v2(){
+  let ok=true;
+  ['q1','q2','q3','q4','q5','q6'].forEach(q=>{const v=document.querySelector('[name="'+q+'"]:checked');showErr(q,!v);if(!v)ok=false;});
+  ['qualites','defauts','pourquoiSASP','rpPourVous','descriptionMetier','gradeVise','reactionCritique','passionsHRP','animal','pourquoiVous'].forEach(f=>{const v=(document.getElementById(f)?.value||'').trim();showErr(f,!v);if(!v)ok=false;});
+  if(!ok)document.querySelector('.show')?.scrollIntoView({behavior:'smooth',block:'center'});
+  return ok;
+}
+
+function v3(){
+  let ok=true;
+  ['situation1','situation2','situation3'].forEach(f=>{const v=(document.getElementById(f)?.value||'').trim();showErr(f,!v);if(!v)ok=false;});
+  return ok;
+}
+
+let saveTimer;
+function autosave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    sessionStorage.setItem('sasp_draft',JSON.stringify(collect()));
+    const t=document.getElementById('saveToast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);
+  },800);
+}
+document.querySelectorAll('.form-control').forEach(el=>el.addEventListener('input',autosave));
+
+function restoreDraft(){
+  try{
+    const d=JSON.parse(sessionStorage.getItem('sasp_draft'));if(!d)return;
+    ['nomRP','prenomRP','dateNaissanceRP','telephoneRP','email','experienceForces','qualites','defauts','pourquoiSASP','rpPourVous','descriptionMetier','gradeVise','reactionCritique','passionsHRP','animal','pourquoiVous','situation1','situation2','situation3'].forEach(f=>{const el=document.getElementById(f);if(el&&d[f])el.value=d[f];});
+    if(d.permisConduire){const r=document.querySelector('[name="permisConduire"][value="'+d.permisConduire+'"]');if(r){r.checked=true;r.dispatchEvent(new Event('change'));}}
+    if(d.qcm)['q1','q2','q3','q4','q5','q6'].forEach(q=>{if(d.qcm[q]){const r=[...document.querySelectorAll('[name="'+q+'"]')].find(e=>e.value===d.qcm[q]);if(r){r.checked=true;r.closest('.radio-opt')?.classList.add('sel');}}});
+  }catch(e){}
+}
+
+function collect(){
+  const g=id=>(document.getElementById(id)?.value||'').trim();
+  return {
+    nomRP:g('nomRP'),prenomRP:g('prenomRP'),dateNaissanceRP:g('dateNaissanceRP'),telephoneRP:g('telephoneRP'),
+    email:g('email'),permisConduire:document.querySelector('[name="permisConduire"]:checked')?.value||'',
+    experienceForces:g('experienceForces'),
+    qcm:{q1:document.querySelector('[name="q1"]:checked')?.value||'',q2:document.querySelector('[name="q2"]:checked')?.value||'',q3:document.querySelector('[name="q3"]:checked')?.value||'',q4:document.querySelector('[name="q4"]:checked')?.value||'',q5:document.querySelector('[name="q5"]:checked')?.value||'',q6:document.querySelector('[name="q6"]:checked')?.value||''},
+    openQuestions:{qualites:g('qualites'),defauts:g('defauts'),pourquoiSASP:g('pourquoiSASP'),rpPourVous:g('rpPourVous'),descriptionMetier:g('descriptionMetier'),gradeVise:g('gradeVise'),reactionCritique:g('reactionCritique'),passionsHRP:g('passionsHRP'),animal:g('animal'),pourquoiVous:g('pourquoiVous')},
+    situations:{situation1:g('situation1'),situation2:g('situation2'),situation3:g('situation3')}
+  };
+}
+
+function submitForm(){
+  if(!v3())return;
+  const btn=document.getElementById('submitBtn'),txt=document.getElementById('submitTxt');
+  btn.disabled=true;txt.innerHTML='<span class="spinner" style="display:inline-block;vertical-align:middle"></span> Envoi…';
+  const data=collect();data.scores=calculateScores(data.qcm,data.openQuestions);
+  google.script.run
+    .withSuccessHandler(res=>{
+      sessionStorage.removeItem('sasp_draft');
+      document.getElementById('successId').textContent=res.success?'📁 Référence : #'+res.id:'';
+      document.getElementById('successScreen').classList.add('open');
+    })
+    .withFailureHandler(()=>{btn.disabled=false;txt.textContent='Soumettre ma candidature';alert('Erreur lors de l\'envoi. Veuillez réessayer.');})
+    .submitApplication(data);
+}
+
+restoreDraft();
+updateProgress();
+</script>
+</body>
+</html>

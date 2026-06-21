@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SASP Nord — Administration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>window.SASP_PAGE='admin';</script>
+</head>
+<body>
+<header class="site-header" style="position:sticky;top:0;z-index:200">
+  <a id="navLogo" href="index.html" style="display:flex;align-items:center;gap:14px;text-decoration:none;flex-shrink:0">
+    <img src="Sasp_logo.webp" alt="SASP Nord" style="height:44px;width:auto;object-fit:contain;filter:drop-shadow(0 0 10px rgba(59,130,246,.4))">
+    <div>
+      <div class="brand-name">SASP NORD</div>
+      <div class="brand-sub">San Andreas State Police</div>
+    </div>
+  </a>
+
+  <nav class="main-nav" id="mainNav">
+    <a class="nav-link" data-page="home" href="index.html">Accueil</a>
+    <a class="nav-link" data-page="info" href="info.html">Informations</a>
+    <a class="nav-link nav-recruit" data-page="recrutement" href="recrutement.html">Recrutement</a>
+    <a class="nav-link nav-admin" data-page="admin" href="admin.html">Admin</a>
+  </nav>
+
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="status-badge" style="display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--t3);font-family:'Share Tech Mono',monospace">
+      <span class="status-dot"></span><span>ACTIF</span>
+    </div>
+    <button class="nav-toggle" onclick="document.getElementById('mainNav').classList.toggle('open')" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<script>
+(function(){
+  var cur = window.SASP_PAGE || 'home';
+  function goSoft(url) {
+    if (!url) return;
+    document.body.classList.add('page-leave');
+    setTimeout(function() { window.location.href = url; }, 55);
+  }
+  document.querySelectorAll('.nav-link[data-page]').forEach(function(a){
+    if (a.dataset.page === cur) {
+      a.classList.add('active');
+      a.removeAttribute('href');
+    } else {
+      a.addEventListener('click', function(e) { e.preventDefault(); goSoft(this.href); });
+    }
+  });
+  document.getElementById('navLogo').addEventListener('click', function(e) {
+    if (cur === 'home') return;
+    e.preventDefault();
+    goSoft(this.href);
+  });
+})();
+</script>
+
+<!-- ══ VUE LOGIN ══════════════════════════════════════════════ -->
+<div id="loginView" class="page-center">
+  <div class="login-card">
+
+    <div class="login-header">
+      <img src="Sasp_logo.webp" alt="SASP" style="height:56px;margin-bottom:16px;filter:drop-shadow(0 0 14px rgba(245,158,11,.4))">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--t3);letter-spacing:2px;margin-bottom:6px">AUTHENTIFICATION REQUISE</div>
+      <h2 style="font-size:1.25rem">Espace recruteurs</h2>
+      <p style="font-size:.8rem;color:var(--t2);margin-top:4px">Accès réservé à l'état-major SASP Nord</p>
+    </div>
+
+    <div class="login-err" id="loginErr">⚠ Identifiants incorrects.</div>
+
+    <form onsubmit="doLogin(event)">
+      <div class="form-group">
+        <label class="form-label">Identifiant</label>
+        <input class="form-control" type="text" id="loginUser" placeholder="Identifiant" autocomplete="username">
+      </div>
+      <div class="form-group" style="margin-bottom:24px">
+        <label class="form-label">Mot de passe</label>
+        <input class="form-control" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary" id="loginBtn" style="width:100%">
+        <span id="loginBtnTxt">Se connecter</span>
+      </button>
+    </form>
+
+    <p style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--t3);margin-top:20px">🔒 SASP NORD · ACCÈS SÉCURISÉ</p>
+  </div>
+</div>
+
+<!-- ══ VUE DASHBOARD ══════════════════════════════════════════ -->
+<div id="dashboardView" style="display:none">
+  <main class="wide-wrap">
+
+    <!-- Titre + actions -->
+    <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--blue);letter-spacing:3px;margin-bottom:6px">GESTION DES CANDIDATURES</div>
+        <h1>Tableau de bord</h1>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn btn-ghost btn-sm" onclick="loadApplications()">↻ Actualiser</button>
+        <button class="btn btn-red btn-sm" onclick="logout()">Déconnexion</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-total"><div class="stat-card"><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Total</div></div></div>
+      <div class="stat-pend"> <div class="stat-card"><div class="stat-val" id="statPending">—</div><div class="stat-lbl">En attente</div></div></div>
+      <div class="stat-ok">  <div class="stat-card"><div class="stat-val" id="statAccepted">—</div><div class="stat-lbl">Acceptées</div></div></div>
+      <div class="stat-ko">  <div class="stat-card"><div class="stat-val" id="statRefused">—</div><div class="stat-lbl">Refusées</div></div></div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="filter-tabs">
+      <button class="ftab active" onclick="filterApps('all',this)">Toutes</button>
+      <button class="ftab" onclick="filterApps('En attente',this)">En attente</button>
+      <button class="ftab" onclick="filterApps('Acceptée',this)">Acceptées</button>
+      <button class="ftab" onclick="filterApps('Refusée',this)">Refusées</button>
+      <button class="ftab" onclick="filterApps('Archivée',this)">Archivées</button>
+    </div>
+
+    <!-- Table -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div id="tableContainer">
+        <div class="loader"><div class="spinner"></div> Chargement…</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ Modal fiche candidat ═══════════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--blue);letter-spacing:2px;margin-bottom:4px">FICHE CANDIDAT</div>
+        <h2 id="modalName" style="font-size:1.25rem">—</h2>
+      </div>
+      <button class="btn-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="modalContent"></div>
+  </div>
+</div>
+
+<script src="scoring.js"></script>
+<script src="backend-shim.js"></script>
+<script src="admin.js"></script>
+
+
+</body>
+</html>
