@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SASP Nord — Accueil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>window.SASP_PAGE='home';</script>
+</head>
+<body>
+<header class="site-header" style="position:sticky;top:0;z-index:200">
+  <a id="navLogo" href="index.html" style="display:flex;align-items:center;gap:14px;text-decoration:none;flex-shrink:0">
+    <img src="Sasp_logo.webp" alt="SASP Nord" style="height:44px;width:auto;object-fit:contain;filter:drop-shadow(0 0 10px rgba(59,130,246,.4))">
+    <div>
+      <div class="brand-name">SASP NORD</div>
+      <div class="brand-sub">San Andreas State Police</div>
+    </div>
+  </a>
+
+  <nav class="main-nav" id="mainNav">
+    <a class="nav-link" data-page="home" href="index.html">Accueil</a>
+    <a class="nav-link" data-page="info" href="info.html">Informations</a>
+    <a class="nav-link nav-recruit" data-page="recrutement" href="recrutement.html">Recrutement</a>
+    <a class="nav-link nav-admin" data-page="admin" href="admin.html">Admin</a>
+  </nav>
+
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="status-badge" style="display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--t3);font-family:'Share Tech Mono',monospace">
+      <span class="status-dot"></span><span>ACTIF</span>
+    </div>
+    <button class="nav-toggle" onclick="document.getElementById('mainNav').classList.toggle('open')" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<script>
+(function(){
+  var cur = window.SASP_PAGE || 'home';
+  function goSoft(url) {
+    if (!url) return;
+    document.body.classList.add('page-leave');
+    setTimeout(function() { window.location.href = url; }, 55);
+  }
+  document.querySelectorAll('.nav-link[data-page]').forEach(function(a){
+    if (a.dataset.page === cur) {
+      a.classList.add('active');
+      a.removeAttribute('href');
+    } else {
+      a.addEventListener('click', function(e) { e.preventDefault(); goSoft(this.href); });
+    }
+  });
+  document.getElementById('navLogo').addEventListener('click', function(e) {
+    if (cur === 'home') return;
+    e.preventDefault();
+    goSoft(this.href);
+  });
+})();
+</script>
+
+<!-- ══ Hero ═══════════════════════════════════════════════════ -->
+<section class="hero">
+  <img src="Sasp_logo.webp" alt="SASP Nord" class="hero-badge">
+  <div class="hero-eyebrow">San Andreas · District Nord</div>
+  <h1 class="hero-title">SASP NORD</h1>
+  <div class="hero-subtitle">SAN ANDREAS STATE POLICE</div>
+  <div class="hero-stars">★ ★ ★</div>
+  <div class="hero-motto">Servir · Protéger · Honorer</div>
+  <div class="hero-btns">
+    <a href="#" id="ctaPostuler" class="btn btn-gold" style="font-size:1.05rem;padding:13px 32px">
+      Déposer ma candidature
+    </a>
+    <a href="#" id="ctaInfo" class="btn btn-ghost" style="padding:13px 28px">
+      En savoir plus
+    </a>
+  </div>
+  <div class="hero-line"></div>
+</section>
+
+<!-- ══ Stats bar ══════════════════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">24+</div>
+    <div class="stat-desc">Agents actifs</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">1 500+</div>
+    <div class="stat-desc">Interventions</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">500+</div>
+    <div class="stat-desc">Patrouilles</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">2021</div>
+    <div class="stat-desc">Fondé en</div>
+  </div>
+</div>
+
+<!-- ══ About ══════════════════════════════════════════════════ -->
+<section class="about-section">
+  <div class="about-grid">
+
+    <div class="card" style="margin-bottom:0">
+      <div class="about-label">Notre mission</div>
+      <h2 style="font-size:1.4rem;margin-bottom:14px">Qui sommes-nous ?</h2>
+      <p class="about-text">
+        Le <strong style="color:var(--t0)">SASP Nord</strong> est la division nord de la San Andreas State Police.
+        Faction policière de référence sur le serveur, nous assurons l'ordre public, la sécurité des citoyens
+        et la répression des activités criminelles dans tout le district nord de San Andreas.
+      </p>
+      <p class="about-text" style="margin-top:14px">
+        Nos agents sont formés aux procédures réalistes : gestion des poursuites, interpellations,
+        gestion de crise et respect strict des règles RP. Nous privilégions la <strong style="color:var(--t0)">qualité du jeu de rôle</strong>
+        sur la quantité d'effectifs.
+      </p>
+      <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+        <span style="font-size:.72rem;padding:4px 12px;border-radius:20px;background:var(--blueGlow);border:1px solid var(--border1);color:var(--blue);font-family:'Share Tech Mono',monospace">ANTI-MÉTAGAMING</span>
+        <span style="font-size:.72rem;padding:4px 12px;border-radius:20px;background:var(--blueGlow);border:1px solid var(--border1);color:var(--blue);font-family:'Share Tech Mono',monospace">FEAR RP</span>
+        <span style="font-size:.72rem;padding:4px 12px;border-radius:20px;background:var(--blueGlow);border:1px solid var(--border1);color:var(--blue);font-family:'Share Tech Mono',monospace">PROCÉDURES RÉALISTES</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,var(--bgCard) 0%,rgba(29,78,216,.08) 100%);border-color:var(--border1)">
+      <div class="about-label">Recrutement ouvert</div>
+      <h2 style="font-size:1.4rem;margin-bottom:14px">Rejoignez nos rangs</h2>
+      <p class="about-text">
+        Vous souhaitez intégrer l'une des factions les plus exigeantes du serveur ?
+        Notre processus de sélection est rigoureux : questionnaire RP, mises en situation,
+        et analyse automatique de votre profil par notre système de notation.
+      </p>
+      <ul style="margin-top:16px;list-style:none;display:flex;flex-direction:column;gap:10px">
+        <li style="display:flex;align-items:center;gap:10px;font-size:.875rem;color:var(--t1)">
+          <span style="color:var(--green);font-size:1rem">✓</span> Formulaire de candidature en 3 étapes
+        </li>
+        <li style="display:flex;align-items:center;gap:10px;font-size:.875rem;color:var(--t1)">
+          <span style="color:var(--green);font-size:1rem">✓</span> Analyse automatique de votre profil RP
+        </li>
+        <li style="display:flex;align-items:center;gap:10px;font-size:.875rem;color:var(--t1)">
+          <span style="color:var(--green);font-size:1rem">✓</span> Réponse sous 48h par l'équipe de recrutement
+        </li>
+        <li style="display:flex;align-items:center;gap:10px;font-size:.875rem;color:var(--t1)">
+          <span style="color:var(--green);font-size:1rem">✓</span> Formation complète dès votre intégration
+        </li>
+      </ul>
+      <a href="#" id="ctaPostuler2" class="btn btn-primary" style="margin-top:24px;width:100%;justify-content:center">
+        Postuler maintenant →
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ Footer ═════════════════════════════════════════════════ -->
+<footer style="border-top:1px solid var(--border0);padding:24px;text-align:center">
+  <p style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--t3);letter-spacing:2px">
+    SASP NORD © 2026 — SAN ANDREAS STATE POLICE — TOUS DROITS RÉSERVÉS
+  </p>
+</footer>
+
+<script>
+document.getElementById('ctaPostuler').href  = 'recrutement.html';
+document.getElementById('ctaPostuler2').href = 'recrutement.html';
+document.getElementById('ctaInfo').href      = 'info.html';
+</script>
+
+</body>
+</html>

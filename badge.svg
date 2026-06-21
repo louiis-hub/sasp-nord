@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="SASP Nord">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="36%" r="70%">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset="0.55" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#040810"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fcd34d"/>
+      <stop offset="0.45" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#92400e"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#93c5fd"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx="256" cy="256" r="232" fill="url(#bg)" stroke="url(#gold)" stroke-width="18"/>
+  <circle cx="256" cy="256" r="194" fill="none" stroke="#1d4ed8" stroke-width="10" opacity="0.8"/>
+  <path d="M256 96l34 68 75 11-54 53 13 74-68-36-68 36 13-74-54-53 75-11z" fill="url(#gold)" filter="url(#glow)"/>
+  <path d="M154 324h204c-18 52-56 88-102 88s-84-36-102-88z" fill="#0f172a" stroke="#3b82f6" stroke-width="8"/>
+  <text x="256" y="292" text-anchor="middle" font-family="Rajdhani, Arial, sans-serif" font-size="82" font-weight="800" fill="#f8fafc" letter-spacing="4">SASP</text>
+  <text x="256" y="360" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#f59e0b" letter-spacing="6">NORD</text>
+</svg>
