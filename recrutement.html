@@ -411,7 +411,8 @@ function collect(){
 
 function submitForm(){
   if(!v3())return;
-  const lastSubmit=Number(localStorage.getItem('sasp_last_submit')||0);
+  const submitStorageKey='sasp_last_submit_'+(new URLSearchParams(location.search).get('token')||'public');
+  const lastSubmit=Number(localStorage.getItem(submitStorageKey)||0);
   const waitMs=15*60*1000-(Date.now()-lastSubmit);
   if(waitMs>0){
     const minutes=Math.ceil(waitMs/60000);
@@ -423,7 +424,7 @@ function submitForm(){
   const data=collect();data.scores=calculateScores(data.qcm,data.openQuestions);
   google.script.run
     .withSuccessHandler(res=>{
-      localStorage.setItem('sasp_last_submit',String(Date.now()));
+      localStorage.setItem(submitStorageKey,String(Date.now()));
       sessionStorage.removeItem('sasp_draft');
       document.getElementById('successId').textContent=res.success?'📁 Référence : #'+res.id:'';
       document.getElementById('successScreen').classList.add('open');
