@@ -104,24 +104,28 @@ function ticketConfig(env, type) {
       prefix: 'recrutement',
       title: 'Recrutement SASP Nord',
       description: 'Présente ta candidature et accède au questionnaire sécurisé.',
+      categoryId: env.RECRUITMENT_CATEGORY_ID,
       staffRoleIds: [env.STAFF_ROLE_ID]
     },
     liaison: {
       prefix: 'liaison',
       title: 'Demande de liaison',
       description: 'Contacte le SASP Nord au sujet d’une liaison officielle ou interservice.',
+      categoryId: env.LIAISON_CATEGORY_ID,
       staffRoleIds: supportRoles
     },
     information: {
       prefix: 'information',
       title: 'Demande d’information',
       description: 'Pose une question ou demande un renseignement à l’équipe du SASP Nord.',
+      categoryId: env.INFORMATION_CATEGORY_ID,
       staffRoleIds: supportRoles
     },
     divers: {
       prefix: 'divers',
       title: 'Demande diverse',
       description: 'Pour toute demande qui ne correspond pas aux autres catégories.',
+      categoryId: env.DIVERS_CATEGORY_ID,
       staffRoleIds: supportRoles
     }
   };
@@ -131,6 +135,14 @@ function ticketConfig(env, type) {
 async function findOpenTicket(env, userId) {
   const channels = await discord(env, `/guilds/${env.DISCORD_GUILD_ID}/channels`);
   return channels.find(channel =>
+    channel.topic === `sasp-recruitment-user:${userId}` ||
+    (String(channel.topic || '').startsWith('sasp-ticket:') && String(channel.topic).endsWith(`:${userId}`))
+  );
+}
+
+async function findOpenTickets(env, userId) {
+  const channels = await discord(env, `/guilds/${env.DISCORD_GUILD_ID}/channels`);
+  return channels.filter(channel =>
     channel.topic === `sasp-recruitment-user:${userId}` ||
     (String(channel.topic || '').startsWith('sasp-ticket:') && String(channel.topic).endsWith(`:${userId}`))
   );
@@ -150,11 +162,11 @@ async function removeCandidateRole(env, userId) {
 
 async function createTicket(env, interaction, origin) {
   const user = interaction.member.user;
-  const existing = await findOpenTicket(env, user.id);
-  if (existing) {
+  const openTickets = await findOpenTickets(env, user.id);
+  if (openTickets.length >= 5) {
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: { content: `Tu as déjà un ticket ouvert : <#${existing.id}>`, flags: 64 }
+      data: { content: 'Tu as déjà 5 tickets ouverts. Ferme un ticket avant d’en créer un autre.', flags: 64 }
     };
   }
 
@@ -217,11 +229,11 @@ async function createPanelTicket(env, interaction, origin, type) {
     };
   }
 
-  const existing = await findOpenTicket(env, user.id);
-  if (existing) {
+  const openTickets = await findOpenTickets(env, user.id);
+  if (openTickets.length >= 5) {
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: { content: `Tu as déjà un ticket ouvert : <#${existing.id}>`, flags: 64 }
+      data: { content: 'Tu as déjà 5 tickets ouverts. Ferme un ticket avant d’en créer un autre.', flags: 64 }
     };
   }
 
@@ -232,7 +244,7 @@ async function createPanelTicket(env, interaction, origin, type) {
     body: JSON.stringify({
       name: `${config.prefix}-${safeChannelName(user.username)}`,
       type: 0,
-      parent_id: env.RECRUITMENT_CATEGORY_ID,
+      parent_id: config.categoryId,
       topic: `sasp-ticket:${type}:${user.id}`,
       permission_overwrites: [
         { id: env.DISCORD_GUILD_ID, type: 0, deny: VIEW_CHANNEL, allow: '0' },
@@ -351,7 +363,7 @@ async function installTicketPanel(env) {
         'ℹ️ **Information** — Obtenir un renseignement ou poser une question.',
         '📩 **Divers** — Toute autre demande destinée au SASP Nord.',
         '',
-        '*Un seul ticket peut être ouvert à la fois par personne.*'
+        '*Chaque personne peut avoir jusqu’à 5 tickets ouverts en même temps.*'
       ].join('\n'),
       color: 0xD99A32,
       footer: { text: 'SASP Nord • Protéger et servir' }
