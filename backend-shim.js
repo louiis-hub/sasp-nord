@@ -111,7 +111,7 @@
         if (API_URL) return jsonp('list', {}, success, failure);
         setTimeout(function(){ success({ success:true, data:read().slice().reverse() }); }, 140);
       },
-      setStatus:function(id, status){
+      updateStatus:function(id, status){
         if (API_URL) return jsonp('status', { id:id, status:status }, success, failure);
         setTimeout(function(){
           var all = read();
@@ -121,7 +121,8 @@
           write(all);
           success({ success:true });
         }, 120);
-      }
+      },
+      setStatus:function(id, status){ return api.updateStatus(id, status); }
     };
     return api;
   }
