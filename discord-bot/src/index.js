@@ -219,10 +219,25 @@ async function createTicket(env, interaction, origin) {
   };
 }
 
+async function resetPanelSelection(env, interaction) {
+  if (!interaction.message?.id || !interaction.channel_id) return;
+  const components = structuredClone(interaction.message.components || []);
+  for (const row of components) {
+    for (const component of row.components || []) {
+      for (const option of component.options || []) delete option.default;
+    }
+  }
+  await discord(env, `/channels/${interaction.channel_id}/messages/${interaction.message.id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ components })
+  });
+}
+
 async function createPanelTicket(env, interaction, origin, type) {
   const user = interaction.member.user;
   const config = ticketConfig(env, type);
   if (!config) {
+    await resetPanelSelection(env, interaction);
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: { content: 'Type de ticket inconnu.', flags: 64 }
@@ -231,6 +246,7 @@ async function createPanelTicket(env, interaction, origin, type) {
 
   const openTickets = await findOpenTickets(env, user.id);
   if (openTickets.length >= 5) {
+    await resetPanelSelection(env, interaction);
     return {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: { content: 'Tu as déjà 5 tickets ouverts. Ferme un ticket avant d’en créer un autre.', flags: 64 }
@@ -278,6 +294,8 @@ async function createPanelTicket(env, interaction, origin, type) {
       components: [{ type: 1, components: buttons }]
     })
   });
+
+  await resetPanelSelection(env, interaction);
 
   return {
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
