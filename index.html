@@ -181,7 +181,8 @@ function applyRecruitmentStatus(status) {
     limited:{label:'Recrutement limité', text:'Postuler - places limitées'},
     closed:{label:'Recrutement fermé', text:'Recrutement fermé'}
   };
-  var state = map[status] || map.open;
+  if (!map[status]) return;
+  var state = map[status];
   var primary = document.getElementById('homeRecruitmentStatus');
   var secondary = document.getElementById('homeRecruitmentStatusSecondary');
   primary.style.visibility = 'visible';
@@ -193,7 +194,7 @@ function applyRecruitmentStatus(status) {
     limited:['rgba(245,158,11,.5)','rgba(245,158,11,.12)','var(--yellow)'],
     closed:['rgba(239,68,68,.5)','rgba(239,68,68,.12)','var(--red)']
   };
-  var c = colors[status] || colors.open;
+  var c = colors[status];
   primary.style.borderColor = c[0];
   primary.style.background = c[1];
   primary.style.color = c[2];
@@ -222,6 +223,23 @@ refreshRecruitmentStatus();
 setInterval(refreshRecruitmentStatus, 5000);
 document.addEventListener('visibilitychange', function(){
   if (!document.hidden) refreshRecruitmentStatus();
+});
+function hideRecruitmentStatusBeforeLeave() {
+  var primary = document.getElementById('homeRecruitmentStatus');
+  var secondary = document.getElementById('homeRecruitmentStatusSecondary');
+  primary.style.visibility = 'hidden';
+  secondary.style.visibility = 'hidden';
+  ['ctaPostuler','ctaPostuler2'].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.textContent = 'Chargement...';
+    el.style.opacity = '.55';
+    el.style.pointerEvents = 'none';
+  });
+}
+window.addEventListener('pagehide', hideRecruitmentStatusBeforeLeave);
+window.addEventListener('beforeunload', hideRecruitmentStatusBeforeLeave);
+window.addEventListener('pageshow', function(event) {
+  if (event.persisted) refreshRecruitmentStatus();
 });
 </script>
 
