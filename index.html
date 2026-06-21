@@ -68,14 +68,14 @@
   <div class="hero-stars">★ ★ ★</div>
   <div class="hero-motto">Servir · Protéger · Honorer</div>
   <div class="hero-btns">
-    <a href="#" id="ctaPostuler" class="btn btn-gold" style="font-size:1.05rem;padding:13px 32px">
-      Déposer ma candidature
+    <a href="#" id="ctaPostuler" class="btn btn-gold" style="font-size:1.05rem;padding:13px 32px;opacity:.55;pointer-events:none">
+      Chargement...
     </a>
     <a href="#" id="ctaInfo" class="btn btn-ghost" style="padding:13px 28px">
       En savoir plus
     </a>
   </div>
-  <div id="homeRecruitmentStatus" style="margin-top:20px;padding:12px 24px;min-width:280px;text-align:center;border:2px solid rgba(16,185,129,.45);background:rgba(16,185,129,.12);color:var(--green);font-family:'Share Tech Mono',monospace;font-size:1rem;font-weight:700;letter-spacing:1px;border-radius:6px;box-shadow:0 0 18px rgba(16,185,129,.12)">
+  <div id="homeRecruitmentStatus" style="margin-top:20px;padding:12px 24px;min-width:280px;text-align:center;border:2px solid rgba(16,185,129,.45);background:rgba(16,185,129,.12);color:var(--green);font-family:'Share Tech Mono',monospace;font-size:1rem;font-weight:700;letter-spacing:1px;border-radius:6px;box-shadow:0 0 18px rgba(16,185,129,.12);visibility:hidden">
     RECRUTEMENT : CHARGEMENT...
   </div>
   <div class="hero-line"></div>
@@ -126,7 +126,7 @@
     </div>
 
     <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,var(--bgCard) 0%,rgba(29,78,216,.08) 100%);border-color:var(--border1)">
-      <div class="about-label" id="homeRecruitmentStatusSecondary">Statut en chargement</div>
+      <div class="about-label" id="homeRecruitmentStatusSecondary" style="visibility:hidden">Statut en chargement</div>
       <h2 style="font-size:1.4rem;margin-bottom:14px">Rejoignez nos rangs</h2>
       <p class="about-text">
         Vous souhaitez intégrer l'une des factions les plus exigeantes du serveur ?
@@ -147,8 +147,8 @@
           <span style="color:var(--green);font-size:1rem">✓</span> Formation complète dès votre intégration
         </li>
       </ul>
-      <a href="#" id="ctaPostuler2" class="btn btn-primary" style="margin-top:24px;width:100%;justify-content:center">
-        Postuler maintenant →
+      <a href="#" id="ctaPostuler2" class="btn btn-primary" style="margin-top:24px;width:100%;justify-content:center;opacity:.55;pointer-events:none">
+        Chargement...
       </a>
     </div>
 
@@ -177,6 +177,8 @@ function applyRecruitmentStatus(status) {
   var state = map[status] || map.open;
   var primary = document.getElementById('homeRecruitmentStatus');
   var secondary = document.getElementById('homeRecruitmentStatusSecondary');
+  primary.style.visibility = 'visible';
+  secondary.style.visibility = 'visible';
   primary.textContent = 'RECRUTEMENT : ' + state.label.replace('Recrutement ', '').toUpperCase();
   secondary.textContent = state.label;
   var colors = {
