@@ -105,7 +105,7 @@ function ticketConfig(env, type) {
       title: 'Recrutement SASP Nord',
       description: 'Présente ta candidature et accède au questionnaire sécurisé.',
       categoryId: env.RECRUITMENT_CATEGORY_ID,
-      staffRoleIds: [env.STAFF_ROLE_ID]
+      staffRoleIds: [env.STAFF_ROLE_ID, env.RECRUITMENT_PING_ROLE_ID]
     },
     liaison: {
       prefix: 'liaison',
@@ -272,7 +272,8 @@ async function createPanelTicket(env, interaction, origin, type) {
   await discord(env, `/channels/${channel.id}/messages`, {
     method: 'POST',
     body: JSON.stringify({
-      content: `<@${user.id}> bienvenue dans ton ticket SASP Nord.`,
+      content: `<@${user.id}> bienvenue dans ton ticket SASP Nord.\n${staffRoleIds.map(id => `<@&${id}>`).join(' ')}`,
+      allowed_mentions: { parse: [], users: [user.id], roles: staffRoleIds },
       embeds: [{ title: config.title, description: config.description, color: 0xD99A32 }],
       components: [{ type: 1, components: buttons }]
     })
