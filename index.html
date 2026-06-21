@@ -211,8 +211,6 @@ google.script.run.withSuccessHandler(function(res) {
   applyRecruitmentStatus(res.status);
 }).getRecruitmentStatus();
 }
-var cachedRecruitmentStatus = localStorage.getItem('sasp_recruitment_status');
-if (cachedRecruitmentStatus) applyRecruitmentStatus(cachedRecruitmentStatus);
 refreshRecruitmentStatus();
 setInterval(refreshRecruitmentStatus, 5000);
 document.addEventListener('visibilitychange', function(){
