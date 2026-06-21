@@ -13,6 +13,19 @@ function json(data, status = 200) {
   });
 }
 
+function corsJson(env, data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+      'access-control-allow-origin': new URL(env.SITE_URL).origin,
+      'access-control-allow-headers': 'authorization,content-type',
+      'access-control-allow-methods': 'POST,OPTIONS',
+      'cache-control': 'no-store'
+    }
+  });
+}
+
 function accessDenied() {
   return new Response(`<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Acces reserve</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#050b16;color:#eef3fb;font-family:Arial,sans-serif}.box{max-width:520px;padding:32px;text-align:center}h1{font-size:28px}p{color:#aab7ca;line-height:1.6}a{display:inline-block;margin-top:14px;padding:13px 18px;background:#d98a00;color:#111;text-decoration:none;font-weight:700;border-radius:6px}</style><div class="box"><h1>Acces reserve aux candidats</h1><p>Ouvre un ticket de recrutement sur Discord pour recevoir ton lien personnel vers le questionnaire.</p><a href="https://discord.gg/KsSmxnNKWV">Ouvrir Discord</a></div></html>`, {
     status: 403,
@@ -70,20 +83,124 @@ async function proxyAppsScript(request, env, url) {
   for (const [key, value] of url.searchParams) {
     if (key !== 'token') target.searchParams.append(key, value);
   }
-  const contentType = request.headers.get('content-type');
+  let body;
+  if (request.method !== 'GET') {
+    const form = await request.formData();
+    const payload = JSON.parse(String(form.get('payload') || '{}'));
+    payload.discordUserId = access.userId;
+    payload.discordChannelId = access.channelId;
+    const encoded = new URLSearchParams();
+    encoded.set('payload', JSON.stringify(payload));
+    body = encoded.toString();
+  }
   const upstream = await fetch(target, {
     method: request.method,
-    headers: contentType ? { 'content-type': contentType } : {},
-    body: request.method === 'GET' ? undefined : await request.arrayBuffer(),
+    headers: request.method === 'GET' ? {} : { 'content-type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+    body,
     redirect: 'follow'
   });
-  return new Response(upstream.body, {
+  const responseText = await upstream.text();
+  if (request.method !== 'GET') {
+    try {
+      const result = JSON.parse(responseText);
+      if (result.success && result.id) {
+        await env.TICKET_ACCESS.put(`application:${result.id}`, JSON.stringify(access), { expirationTtl: 90 * 24 * 60 * 60 });
+      }
+    } catch (error) {
+      console.error('Impossible de lier la candidature au ticket', error);
+    }
+  }
+  return new Response(responseText, {
     status: upstream.status,
     headers: {
       'content-type': upstream.headers.get('content-type') || 'text/plain;charset=UTF-8',
       'cache-control': 'no-store'
     }
   });
+}
+
+async function adminLogin(request, env) {
+  const body = await request.json();
+  const target = new URL(env.APPS_SCRIPT_URL);
+  target.searchParams.set('action', 'auth');
+  target.searchParams.set('username', String(body.username || ''));
+  target.searchParams.set('password', String(body.password || ''));
+  const response = await fetch(target, { redirect: 'follow' });
+  const result = await response.json();
+  if (!result.valid) return corsJson(env, { success: false, error: 'Identifiants incorrects' }, 401);
+
+  const token = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+  await env.TICKET_ACCESS.put(`admin-session:${token}`, '1', { expirationTtl: 8 * 60 * 60 });
+  return corsJson(env, { success: true, token });
+}
+
+async function requireAdmin(request, env) {
+  const authorization = String(request.headers.get('authorization') || '');
+  const token = authorization.startsWith('Bearer ') ? authorization.slice(7) : '';
+  if (!token || !await env.TICKET_ACCESS.get(`admin-session:${token}`)) return false;
+  return true;
+}
+
+async function applicationDecision(request, env) {
+  if (!await requireAdmin(request, env)) {
+    return corsJson(env, { success: false, error: 'Session administrateur expirée' }, 401);
+  }
+
+  const body = await request.json();
+  const id = String(body.id || '');
+  const status = String(body.status || '');
+  const appointmentDate = String(body.appointmentDate || '');
+  const appointmentTime = String(body.appointmentTime || '');
+  if (!id || !['Acceptée', 'Refusée'].includes(status)) {
+    return corsJson(env, { success: false, error: 'Décision invalide' }, 400);
+  }
+  if (status === 'Acceptée' && (!appointmentDate || !appointmentTime)) {
+    return corsJson(env, { success: false, error: 'La date et l’heure du rendez-vous sont obligatoires' }, 400);
+  }
+
+  const ticket = await env.TICKET_ACCESS.get(`application:${id}`, 'json');
+  if (!ticket?.channelId || !ticket?.userId) {
+    return corsJson(env, { success: false, error: 'Aucun ticket lié à cette candidature. Demande au candidat de soumettre depuis son nouveau lien privé.' }, 409);
+  }
+
+  const accepted = status === 'Acceptée';
+  const description = accepted
+    ? `Ta candidature est acceptée.\n\n**Rendez-vous :** ${appointmentDate.split('-').reverse().join('/')} à ${appointmentTime}\n\nMerci de te présenter quelques minutes en avance.`
+    : 'Ta candidature n’est pas retenue cette fois-ci. Tu pourras déposer une nouvelle candidature dans **24 heures**.';
+  await discord(env, `/channels/${ticket.channelId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({
+      content: `<@${ticket.userId}>`,
+      allowed_mentions: { parse: [], users: [ticket.userId] },
+      embeds: [{
+        title: accepted ? 'Candidature acceptée' : 'Candidature refusée',
+        description,
+        color: accepted ? 0x22C55E : 0xEF4444,
+        footer: { text: 'SASP Nord • Service recrutement' },
+        timestamp: new Date().toISOString()
+      }]
+    })
+  });
+
+  const statusUrl = new URL(env.APPS_SCRIPT_URL);
+  statusUrl.searchParams.set('action', 'status');
+  statusUrl.searchParams.set('id', id);
+  statusUrl.searchParams.set('status', status);
+  const statusResponse = await fetch(statusUrl, { redirect: 'follow' });
+  const statusResult = await statusResponse.json();
+  if (!statusResult.success) return corsJson(env, statusResult, 502);
+
+  if (!accepted) {
+    await env.TICKET_ACCESS.put(`recruitment-cooldown:${ticket.userId}`, String(Date.now() + 24 * 60 * 60 * 1000), { expirationTtl: 24 * 60 * 60 });
+  }
+  const accessToken = await env.TICKET_ACCESS.get(`channel:${ticket.channelId}`);
+  if (accessToken) {
+    await Promise.all([
+      env.TICKET_ACCESS.delete(`token:${accessToken}`),
+      env.TICKET_ACCESS.delete(`channel:${ticket.channelId}`)
+    ]);
+  }
+  return corsJson(env, { success: true });
 }
 
 function safeChannelName(username) {
@@ -242,6 +359,18 @@ async function createPanelTicket(env, interaction, origin, type) {
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: { content: 'Type de ticket inconnu.', flags: 64 }
     };
+  }
+
+  if (type === 'recruitment') {
+    const cooldownUntil = Number(await env.TICKET_ACCESS.get(`recruitment-cooldown:${user.id}`) || 0);
+    if (cooldownUntil > Date.now()) {
+      const hours = Math.max(1, Math.ceil((cooldownUntil - Date.now()) / (60 * 60 * 1000)));
+      await resetPanelSelection(env, interaction);
+      return {
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: { content: `Tu pourras déposer une nouvelle candidature dans environ ${hours} heure(s).`, flags: 64 }
+      };
+    }
   }
 
   const openTickets = await findOpenTickets(env, user.id);
@@ -425,7 +554,19 @@ async function installTicketPanel(env) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (request.method === 'OPTIONS' && url.pathname.startsWith('/admin/')) {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'access-control-allow-origin': new URL(env.SITE_URL).origin,
+          'access-control-allow-headers': 'authorization,content-type',
+          'access-control-allow-methods': 'POST,OPTIONS'
+        }
+      });
+    }
     if (url.pathname === '/health') return json({ ok: true });
+    if (url.pathname === '/admin/login' && request.method === 'POST') return adminLogin(request, env);
+    if (url.pathname === '/admin/decision' && request.method === 'POST') return applicationDecision(request, env);
     if (url.pathname === '/recrutement' && request.method === 'GET') return serveRecruitment(env, url);
     if (url.pathname === '/api' && (request.method === 'GET' || request.method === 'POST')) {
       return proxyAppsScript(request, env, url);

@@ -1,8 +1,9 @@
 // ── Auth helpers (sessionStorage bloque dans l iframe GAS) ────
-var _memAuth = false;
-function _authGet()   { try { return sessionStorage.getItem('sasp_admin'); } catch(e) { return _memAuth ? '1' : null; } }
-function _authSet()   { _memAuth = true;  try { sessionStorage.setItem('sasp_admin','1'); } catch(e) {} }
-function _authClear() { _memAuth = false; try { sessionStorage.removeItem('sasp_admin');  } catch(e) {} }
+var ADMIN_API = 'https://sasp-nord-discord-bot.louisleurin.workers.dev';
+var _memAuth = '';
+function _authGet()   { try { return sessionStorage.getItem('sasp_admin_token'); } catch(e) { return _memAuth || null; } }
+function _authSet(token) { _memAuth = token; try { sessionStorage.setItem('sasp_admin_token',token); } catch(e) {} }
+function _authClear() { _memAuth = ''; try { sessionStorage.removeItem('sasp_admin_token'); } catch(e) {} }
 
 // ── Auth ──────────────────────────────────────────────────────
 function doLogin(e) {
@@ -16,23 +17,23 @@ function doLogin(e) {
   btn.disabled = true;
   txt.innerHTML = '<span class="spinner" style="display:inline-block;vertical-align:middle"></span> Verification...';
   err.classList.remove('show');
-  google.script.run
-    .withSuccessHandler(function(valid) {
-      if (valid) { _authSet(); showDashboard(); }
-      else {
-        err.classList.add('show');
-        btn.disabled = false;
-        txt.textContent = 'Se connecter';
-        document.getElementById('loginPass').value = '';
-      }
-    })
-    .withFailureHandler(function() {
-      err.textContent = 'Erreur de connexion.';
+  fetch(ADMIN_API + '/admin/login', {
+    method: 'POST',
+    headers: {'content-type':'application/json'},
+    body: JSON.stringify({username:user,password:pass})
+  }).then(function(response){
+    return response.json().then(function(data){ return {ok:response.ok,data:data}; });
+  }).then(function(result){
+    if (!result.ok || !result.data.success) throw new Error(result.data.error || 'Identifiants incorrects');
+    _authSet(result.data.token);
+    showDashboard();
+  }).catch(function(error) {
+      err.textContent = error.message || 'Erreur de connexion.';
       err.classList.add('show');
       btn.disabled = false;
       txt.textContent = 'Se connecter';
-    })
-    .validateAdmin(user, pass);
+      document.getElementById('loginPass').value = '';
+  });
 }
 
 function showDashboard() {
@@ -49,7 +50,7 @@ function logout() {
   document.getElementById('loginPass').value = '';
 }
 
-if (_authGet() === '1') showDashboard();
+if (_authGet()) showDashboard();
 
 // ── State ─────────────────────────────────────────────────────
 var allApps = [], currentFilter = 'all', adminSearch = '';
@@ -183,7 +184,66 @@ function renderTable(apps) {
 }
 
 // ── Status update ─────────────────────────────────────────────
+var pendingAppointmentId = '';
+
+function openAppointmentDialog(id) {
+  pendingAppointmentId = id;
+  var dateInput = document.getElementById('appointmentDate');
+  var tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  dateInput.min = new Date().toISOString().slice(0,10);
+  dateInput.value = tomorrow.getFullYear() + '-' + String(tomorrow.getMonth() + 1).padStart(2,'0') + '-' + String(tomorrow.getDate()).padStart(2,'0');
+  document.getElementById('appointmentTime').value = '20:00';
+  document.getElementById('appointmentError').textContent = '';
+  document.getElementById('appointmentOverlay').classList.add('open');
+}
+
+function closeAppointmentDialog() {
+  document.getElementById('appointmentOverlay').classList.remove('open');
+  pendingAppointmentId = '';
+}
+
+function confirmAppointmentDecision() {
+  var date = document.getElementById('appointmentDate').value;
+  var time = document.getElementById('appointmentTime').value;
+  if (!date || !time) {
+    document.getElementById('appointmentError').textContent = 'Choisis une date et une heure.';
+    return;
+  }
+  var id = pendingAppointmentId;
+  closeAppointmentDialog();
+  sendDiscordDecision(id, 'Acceptée', date, time);
+}
+
+function sendDiscordDecision(id, status, appointmentDate, appointmentTime) {
+  var token = _authGet();
+  if (!token) { logout(); return; }
+  fetch(ADMIN_API + '/admin/decision', {
+    method: 'POST',
+    headers: {'content-type':'application/json','authorization':'Bearer ' + token},
+    body: JSON.stringify({id:id,status:status,appointmentDate:appointmentDate||'',appointmentTime:appointmentTime||''})
+  }).then(function(response){
+    return response.json().then(function(data){ return {ok:response.ok,data:data}; });
+  }).then(function(result){
+    if (!result.ok || !result.data.success) throw new Error(result.data.error || 'Décision impossible');
+    var app = allApps.find(function(x){ return x.id === id; });
+    if (app) app.statut = status;
+    updateStats();
+    renderTable(getFilteredApps());
+    alert(status === 'Acceptée' ? 'Candidature acceptée et rendez-vous envoyé dans le ticket.' : 'Refus envoyé. Le candidat pourra réessayer dans 24 h.');
+  }).catch(function(error){
+    if (/session/i.test(error.message || '')) logout();
+    alert(error.message || 'Impossible d’envoyer la décision.');
+  });
+}
+
 function setStatus(id, s) {
+  if (s === 'Acceptée') { openAppointmentDialog(id); return; }
+  if (s === 'Refusée') {
+    if (confirm('Confirmer le refus ? Le candidat pourra déposer une nouvelle candidature dans 24 heures.')) {
+      sendDiscordDecision(id, s, '', '');
+    }
+    return;
+  }
   var previous = null;
   var app = allApps.find(function(x){ return x.id === id; });
   if (app) {
