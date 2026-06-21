@@ -84,6 +84,7 @@ async function proxyAppsScript(request, env, url) {
     if (key !== 'token') target.searchParams.append(key, value);
   }
   let body;
+  let submittedPayload = null;
   if (request.method !== 'GET') {
     const form = await request.formData();
     const payload = JSON.parse(String(form.get('payload') || '{}'));
@@ -92,6 +93,7 @@ async function proxyAppsScript(request, env, url) {
     const encoded = new URLSearchParams();
     encoded.set('payload', JSON.stringify(payload));
     body = encoded.toString();
+    submittedPayload = payload;
   }
   const upstream = await fetch(target, {
     method: request.method,
@@ -101,13 +103,29 @@ async function proxyAppsScript(request, env, url) {
   });
   const responseText = await upstream.text();
   if (request.method !== 'GET') {
+    let linkedApplicationId = '';
     try {
       const result = JSON.parse(responseText);
       if (result.success && result.id) {
-        await env.TICKET_ACCESS.put(`application:${result.id}`, JSON.stringify(access), { expirationTtl: 90 * 24 * 60 * 60 });
+        linkedApplicationId = String(result.id);
       }
     } catch (error) {
       console.error('Impossible de lier la candidature au ticket', error);
+    }
+    if (!linkedApplicationId && submittedPayload) {
+      const listUrl = new URL(env.APPS_SCRIPT_URL);
+      listUrl.searchParams.set('action', 'list');
+      const listResponse = await fetch(listUrl, { redirect: 'follow' });
+      const listResult = await listResponse.json();
+      const latest = (listResult.data || []).find(application =>
+        String(application.pseudoDiscord || '') === String(submittedPayload.pseudoDiscord || '') &&
+        String(application.nomRP || '') === String(submittedPayload.nomRP || '') &&
+        String(application.prenomRP || '') === String(submittedPayload.prenomRP || '')
+      );
+      if (latest?.id) linkedApplicationId = String(latest.id);
+    }
+    if (linkedApplicationId) {
+      await env.TICKET_ACCESS.put(`application:${linkedApplicationId}`, JSON.stringify(access), { expirationTtl: 90 * 24 * 60 * 60 });
     }
   }
   return new Response(responseText, {
