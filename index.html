@@ -75,6 +75,9 @@
       En savoir plus
     </a>
   </div>
+  <div id="homeRecruitmentStatus" style="margin-top:18px;padding:7px 14px;border:1px solid rgba(16,185,129,.45);background:rgba(16,185,129,.12);color:var(--green);font-family:'Share Tech Mono',monospace;font-size:.75rem;font-weight:600;letter-spacing:1px;border-radius:6px">
+    RECRUTEMENT : OUVERT
+  </div>
   <div class="hero-line"></div>
 </section>
 
@@ -123,7 +126,7 @@
     </div>
 
     <div class="card" style="margin-bottom:0;background:linear-gradient(135deg,var(--bgCard) 0%,rgba(29,78,216,.08) 100%);border-color:var(--border1)">
-      <div class="about-label" id="homeRecruitmentStatus">Recrutement ouvert</div>
+      <div class="about-label" id="homeRecruitmentStatusSecondary">Recrutement ouvert</div>
       <h2 style="font-size:1.4rem;margin-bottom:14px">Rejoignez nos rangs</h2>
       <p class="about-text">
         Vous souhaitez intégrer l'une des factions les plus exigeantes du serveur ?
@@ -173,7 +176,19 @@ google.script.run.withSuccessHandler(function(res) {
     closed:{label:'Recrutement fermé', text:'Recrutement fermé'}
   };
   var state = map[res.status] || map.open;
-  document.getElementById('homeRecruitmentStatus').textContent = state.label;
+  var primary = document.getElementById('homeRecruitmentStatus');
+  var secondary = document.getElementById('homeRecruitmentStatusSecondary');
+  primary.textContent = 'RECRUTEMENT : ' + state.label.replace('Recrutement ', '').toUpperCase();
+  secondary.textContent = state.label;
+  var colors = {
+    open:['rgba(16,185,129,.45)','rgba(16,185,129,.12)','var(--green)'],
+    limited:['rgba(245,158,11,.5)','rgba(245,158,11,.12)','var(--yellow)'],
+    closed:['rgba(239,68,68,.5)','rgba(239,68,68,.12)','var(--red)']
+  };
+  var c = colors[res.status] || colors.open;
+  primary.style.borderColor = c[0];
+  primary.style.background = c[1];
+  primary.style.color = c[2];
   ['ctaPostuler','ctaPostuler2'].forEach(function(id) {
     var el = document.getElementById(id);
     el.textContent = state.text;
