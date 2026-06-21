@@ -66,28 +66,102 @@
 })();
 </script>
 
-<div class="coming-soon">
-  <div class="coming-icon">🛡️</div>
-  <h1 class="coming-title">Page en construction</h1>
-  <p class="coming-txt">
-    Cette section sera bientôt disponible avec les règlements, grades,
-    procédures et informations internes du SASP Nord.
-  </p>
-  <div class="coming-bar"><div class="coming-fill"></div></div>
-  <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--t3);letter-spacing:2px;margin-bottom:24px">EN COURS DE RÉDACTION</div>
-  <a href="#" id="backHome" class="btn btn-ghost">← Retour à l'accueil</a>
-</div>
+<main class="main-wrap">
 
-<script>
-document.getElementById('backHome').href = 'index.html';
-document.getElementById('backHome').addEventListener('click', function(e) {
-  e.preventDefault();
-  document.body.classList.add('page-leave');
-  setTimeout(function() {
-    window.location.href = 'index.html?_v=' + Date.now();
-  }, 55);
-});
-</script>
+  <!-- ══ TITRE ════════════════════════════════════════════════ -->
+  <div style="margin-bottom:40px">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--blue);letter-spacing:3px;margin-bottom:8px">BLAINE COUNTY SHERIFF'S OFFICE</div>
+    <h1>Informations</h1>
+    <p style="color:var(--t2);margin-top:8px;font-size:.9rem">Structure, grades et conditions d'intégration du BCSO.</p>
+  </div>
+
+  <!-- ══ HIÉRARCHIE ════════════════════════════════════════════ -->
+  <div class="card" style="margin-bottom:32px">
+    <div class="card-head">
+      <div class="card-icon">🏅</div>
+      <div><div class="card-title">Hiérarchie</div><div class="card-sub">STRUCTURE & GRADES</div></div>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem">
+        <thead>
+          <tr>
+            <th style="padding:10px 16px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:2px;color:var(--t3);border-bottom:1px solid var(--border0)">SUB DIVISION</th>
+            <th style="padding:10px 16px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:2px;color:var(--t3);border-bottom:1px solid var(--border0)">GRADE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- COMMAND STAFF -->
+          <tr>
+            <td rowspan="4" style="padding:14px 16px;vertical-align:middle;border-bottom:1px solid var(--border0);border-right:1px solid var(--border0)">
+              <span style="display:inline-block;background:rgba(239,68,68,.15);color:#ef4444;font-weight:700;font-size:.78rem;padding:4px 10px;border-radius:6px;border:1px solid rgba(239,68,68,.3);letter-spacing:1px">COMMAND STAFF</span>
+            </td>
+            <td style="padding:10px 16px;color:var(--t0);font-weight:600;border-bottom:1px solid var(--border0)">🔴 Sheriff</td>
+          </tr>
+          <tr><td style="padding:10px 16px;color:var(--t1);border-bottom:1px solid var(--border0)">Under Sheriff</td></tr>
+          <tr><td style="padding:10px 16px;color:var(--t1);border-bottom:1px solid var(--border0)">Lieutenant II</td></tr>
+          <tr><td style="padding:10px 16px;color:var(--t1);border-bottom:1px solid var(--border0)">Lieutenant I</td></tr>
+
+          <!-- SUPERVISOR TEAM -->
+          <tr>
+            <td rowspan="2" style="padding:14px 16px;vertical-align:middle;border-bottom:1px solid var(--border0);border-right:1px solid var(--border0)">
+              <span style="display:inline-block;background:rgba(245,158,11,.15);color:#f59e0b;font-weight:700;font-size:.78rem;padding:4px 10px;border-radius:6px;border:1px solid rgba(245,158,11,.3);letter-spacing:1px">SUPERVISOR TEAM</span>
+            </td>
+            <td style="padding:10px 16px;color:var(--t1);border-bottom:1px solid var(--border0)">Sergeant II</td>
+          </tr>
+          <tr><td style="padding:10px 16px;color:var(--t1);border-bottom:1px solid var(--border0)">Sergeant I</td></tr>
+
+          <!-- SHERIFF DEPUTY -->
+          <tr>
+            <td rowspan="4" style="padding:14px 16px;vertical-align:middle;border-bottom:1px solid var(--border0);border-right:1px solid var(--border0)">
+              <span style="display:inline-block;background:rgba(59,130,246,.15);color:var(--blue);font-weight:700;font-size:.78rem;padding:4px 10px;border-radius:6px;border:1px solid rgba(59,130,246,.3);letter-spacing:1px">SHERIFF DEPUTY</span>
+            </td>
+            <td style="padding:10px 16px;color:var(--t1);border-bottom:1px solid var(--border0)">Senior Deputy</td>
+          </tr>
+          <tr><td style="padding:10px 16px;color:var(--t1);border-bottom:1px solid var(--border0)">Deputy III</td></tr>
+          <tr><td style="padding:10px 16px;color:var(--t1);border-bottom:1px solid var(--border0)">Deputy II</td></tr>
+          <tr><td style="padding:10px 16px;color:var(--t1);border-bottom:1px solid var(--border0)">Deputy I</td></tr>
+
+          <!-- APPRENTISSAGE -->
+          <tr>
+            <td style="padding:14px 16px;border-right:1px solid var(--border0)">
+              <span style="display:inline-block;background:rgba(100,116,139,.15);color:var(--t2);font-weight:700;font-size:.78rem;padding:4px 10px;border-radius:6px;border:1px solid var(--border0);letter-spacing:1px">APPRENTISSAGE</span>
+            </td>
+            <td style="padding:10px 16px;color:var(--t2)">Cadet</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ CONDITIONS ════════════════════════════════════════════ -->
+  <div class="card" style="margin-bottom:32px">
+    <div class="card-head">
+      <div class="card-icon">📋</div>
+      <div><div class="card-title">Conditions pour postuler</div><div class="card-sub">CRITÈRES D'ADMISSION</div></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:var(--bgCard);border-radius:8px;border:1px solid var(--border0)">
+        <span style="font-size:1.2rem;flex-shrink:0">🎂</span>
+        <div><div style="font-weight:600;color:var(--t0);margin-bottom:2px">Âge RP</div><div style="color:var(--t2);font-size:.88rem">Avoir au minimum 18 ans en jeu de rôle.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:var(--bgCard);border-radius:8px;border:1px solid var(--border0)">
+        <span style="font-size:1.2rem;flex-shrink:0">🚗</span>
+        <div><div style="font-weight:600;color:var(--t0);margin-bottom:2px">Permis de conduire RP</div><div style="color:var(--t2);font-size:.88rem">Être titulaire du permis de conduire en jeu.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:var(--bgCard);border-radius:8px;border:1px solid var(--border0)">
+        <span style="font-size:1.2rem;flex-shrink:0">📁</span>
+        <div><div style="font-weight:600;color:var(--t0);margin-bottom:2px">Casier judiciaire vierge</div><div style="color:var(--t2);font-size:.88rem">Aucune condamnation en cours ou récente au niveau RP.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:var(--bgCard);border-radius:8px;border:1px solid var(--border0)">
+        <span style="font-size:1.2rem;flex-shrink:0">🎮</span>
+        <div><div style="font-weight:600;color:var(--t0);margin-bottom:2px">Maîtrise des règles RP</div><div style="color:var(--t2);font-size:.88rem">Connaissance des règles de base : No-Métagaming, FearRP, No-Powergaming.</div></div>
+      </div>
+    </div>
+  </div>
+
+</main>
 
 </body>
 </html>
