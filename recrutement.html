@@ -110,9 +110,9 @@
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Adresse email <span class="req">*</span></label>
-        <input class="form-control" id="email" type="email" placeholder="votre@email.com">
-        <div class="field-err" id="err-email">Veuillez saisir un email valide.</div>
+        <label class="form-label">Pseudo Discord <span class="req">*</span></label>
+        <input class="form-control" id="pseudoDiscord" type="text" placeholder="Ex : louis_123">
+        <div class="field-err" id="err-pseudoDiscord">Ce champ est obligatoire.</div>
       </div>
       <div class="form-group">
         <label class="form-label">Possédez-vous le permis de conduire RP ? <span class="req">*</span></label>
@@ -344,7 +344,7 @@ function showErr(id,show){
 
 function v1(){
   let ok=true;
-  ['nomRP','prenomRP','dateNaissanceRP','telephoneRP'].forEach(f=>{const v=(document.getElementById(f)?.value||'').trim();showErr(f,!v);if(!v)ok=false;});
+  ['nomRP','prenomRP','dateNaissanceRP','telephoneRP','pseudoDiscord'].forEach(f=>{const v=(document.getElementById(f)?.value||'').trim();showErr(f,!v);if(!v)ok=false;});
   const em=(document.getElementById('email')?.value||'').trim();
   const ve=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);showErr('email',!ve);if(!ve)ok=false;
   const p=document.querySelector('[name="permisConduire"]:checked');showErr('permisConduire',!p);if(!p)ok=false;
@@ -379,7 +379,7 @@ document.querySelectorAll('.form-control').forEach(el=>el.addEventListener('inpu
 function restoreDraft(){
   try{
     const d=JSON.parse(sessionStorage.getItem('sasp_draft'));if(!d)return;
-    ['nomRP','prenomRP','dateNaissanceRP','telephoneRP','email','experienceForces','qualites','defauts','pourquoiSASP','rpPourVous','descriptionMetier','gradeVise','reactionCritique','passionsHRP','animal','pourquoiVous','situation1','situation2','situation3'].forEach(f=>{const el=document.getElementById(f);if(el&&d[f])el.value=d[f];});
+    ['nomRP','prenomRP','dateNaissanceRP','telephoneRP','pseudoDiscord','experienceForces','qualites','defauts','pourquoiSASP','rpPourVous','descriptionMetier','gradeVise','reactionCritique','passionsHRP','animal','pourquoiVous','situation1','situation2','situation3'].forEach(f=>{const el=document.getElementById(f);if(el&&d[f])el.value=d[f];});
     if(d.permisConduire){const r=document.querySelector('[name="permisConduire"][value="'+d.permisConduire+'"]');if(r){r.checked=true;r.dispatchEvent(new Event('change'));}}
     if(d.qcm)['q1','q2','q3','q4','q5','q6'].forEach(q=>{if(d.qcm[q]){const r=[...document.querySelectorAll('[name="'+q+'"]')].find(e=>e.value===d.qcm[q]);if(r){r.checked=true;r.closest('.radio-opt')?.classList.add('sel');}}});
   }catch(e){}
@@ -389,7 +389,7 @@ function collect(){
   const g=id=>(document.getElementById(id)?.value||'').trim();
   return {
     nomRP:g('nomRP'),prenomRP:g('prenomRP'),dateNaissanceRP:g('dateNaissanceRP'),telephoneRP:g('telephoneRP'),
-    email:g('email'),permisConduire:document.querySelector('[name="permisConduire"]:checked')?.value||'',
+    email:'',pseudoDiscord:g('pseudoDiscord'),permisConduire:document.querySelector('[name="permisConduire"]:checked')?.value||'',
     experienceForces:g('experienceForces'),
     qcm:{q1:document.querySelector('[name="q1"]:checked')?.value||'',q2:document.querySelector('[name="q2"]:checked')?.value||'',q3:document.querySelector('[name="q3"]:checked')?.value||'',q4:document.querySelector('[name="q4"]:checked')?.value||'',q5:document.querySelector('[name="q5"]:checked')?.value||'',q6:document.querySelector('[name="q6"]:checked')?.value||''},
     openQuestions:{qualites:g('qualites'),defauts:g('defauts'),pourquoiSASP:g('pourquoiSASP'),rpPourVous:g('rpPourVous'),descriptionMetier:g('descriptionMetier'),gradeVise:g('gradeVise'),reactionCritique:g('reactionCritique'),passionsHRP:g('passionsHRP'),animal:g('animal'),pourquoiVous:g('pourquoiVous')},
