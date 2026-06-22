@@ -1,4 +1,4 @@
-import { InteractionResponseType, InteractionType, verifyKey } from 'discord-interactions';
+﻿import { InteractionResponseType, InteractionType, verifyKey } from 'discord-interactions';
 
 const API = 'https://discord.com/api/v10';
 const VIEW_CHANNEL = '1024';
@@ -273,7 +273,7 @@ async function applicationDecision(request, env) {
         title: accepted ? 'Candidature acceptée' : 'Candidature refusée',
         description,
         color: accepted ? 0x22C55E : 0xEF4444,
-        footer: { text: 'SASP Nord • Service recrutement' },
+        footer: { text: 'BCSO • Service recrutement' },
         timestamp: new Date().toISOString()
       }]
     })
@@ -316,7 +316,7 @@ function ticketConfig(env, type) {
   const configs = {
     recruitment: {
       prefix: 'recrutement',
-      title: 'Recrutement SASP Nord',
+      title: 'Recrutement BCSO',
       description: 'Le service recrutement lancera ton QCM lorsque tu seras prêt sur place.',
       categoryId: env.RECRUITMENT_CATEGORY_ID,
       staffRoleIds: [env.STAFF_ROLE_ID, env.RECRUITMENT_PING_ROLE_ID]
@@ -324,7 +324,7 @@ function ticketConfig(env, type) {
     liaison: {
       prefix: 'liaison',
       title: 'Demande de liaison',
-      description: 'Contacte le SASP Nord au sujet d’une liaison officielle ou interservice.',
+      description: 'Contacte le BCSO au sujet d’une liaison officielle ou interservice.',
       categoryId: env.LIAISON_CATEGORY_ID,
       staffRoleIds: supportRoles
     },
@@ -411,9 +411,9 @@ async function createTicket(env, interaction, origin) {
   await discord(env, `/channels/${channel.id}/messages`, {
     method: 'POST',
     body: JSON.stringify({
-      content: `<@${user.id}> bienvenue dans ton ticket de recrutement SASP Nord.`,
+      content: `<@${user.id}> bienvenue dans ton ticket de Recrutement BCSO.`,
       embeds: [{
-        title: 'Recrutement SASP Nord',
+        title: 'Recrutement BCSO',
         description: 'Utilise le bouton ci-dessous pour accéder au test. Ton accès restera actif tant que ce ticket est ouvert.',
         color: 0xD99A32
       }],
@@ -504,7 +504,7 @@ async function createPanelTicket(env, interaction, origin, type) {
   await discord(env, `/channels/${channel.id}/messages`, {
     method: 'POST',
     body: JSON.stringify({
-      content: `<@${user.id}> bienvenue dans ton ticket SASP Nord.\n${staffRoleIds.map(id => `<@&${id}>`).join(' ')}`,
+      content: `<@${user.id}> bienvenue dans ton ticket BCSO.\n${staffRoleIds.map(id => `<@&${id}>`).join(' ')}`,
       allowed_mentions: { parse: [], users: [user.id], roles: staffRoleIds },
       embeds: [{ title: config.title, description: config.description, color: 0xD99A32 }],
       components: [{ type: 1, components: buttons }]
@@ -651,19 +651,19 @@ async function closePanelTicket(env, interaction, ctx) {
 async function installTicketPanel(env) {
   const payload = {
     embeds: [{
-      title: 'SASP Nord — Centre de contact',
+      title: 'BCSO — Centre de contact',
       description: [
         'Sélectionnez le type de demande dans le menu ci-dessous pour ouvrir un ticket privé.',
         '',
         '🛡️ **Recrutement** — Déposer une candidature et accéder au questionnaire.',
         '🤝 **Liaison** — Contacter le service pour une liaison officielle ou interservice.',
         'ℹ️ **Information** — Obtenir un renseignement ou poser une question.',
-        '📩 **Divers** — Toute autre demande destinée au SASP Nord.',
+        '📩 **Divers** — Toute autre demande destinée au BCSO.',
         '',
         '*Chaque personne peut avoir jusqu’à 5 tickets ouverts en même temps.*'
       ].join('\n'),
       color: 0xD99A32,
-      footer: { text: 'SASP Nord • Protéger et servir' }
+      footer: { text: 'BCSO • Protéger et servir' }
     }],
     components: [{
       type: 1,
@@ -721,7 +721,7 @@ export default {
       return proxyAppsScript(request, env, url, ctx);
     }
     if (url.pathname !== '/interactions' || request.method !== 'POST') {
-      return new Response('SASP Nord Discord Bot', { status: 200 });
+      return new Response('BCSO Discord Bot', { status: 200 });
     }
 
     const signature = request.headers.get('x-signature-ed25519');

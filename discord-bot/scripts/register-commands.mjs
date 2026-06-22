@@ -1,4 +1,4 @@
-const applicationId = process.env.DISCORD_APPLICATION_ID;
+﻿const applicationId = process.env.DISCORD_APPLICATION_ID;
 const guildId = process.env.DISCORD_GUILD_ID;
 const token = process.env.DISCORD_BOT_TOKEN;
 
@@ -14,7 +14,7 @@ const response = await fetch(`https://discord.com/api/v10/applications/${applica
   },
   body: JSON.stringify([{
     name: 'ticket-recrutement',
-    description: 'Ouvre un ticket privé de recrutement SASP Nord',
+    description: 'Ouvre un ticket privé de recrutement BCSO',
     type: 1
   }])
 });
