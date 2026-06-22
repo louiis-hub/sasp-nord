@@ -1,9 +1,9 @@
 // ════════════════════════════════════════════════════════════
-// SASP NORD — Moteur de notation automatique
+// BCSO — Moteur de notation automatique
 // ════════════════════════════════════════════════════════════
 
 const CORRECT_ANSWERS = {
-  q1: 'San Andreas State Police',
+  q1: 'Blaine County Sheriff Office',
   q2: 'Rien sauf élément RP justifiant une intervention',
   q3: "J'ignore l'information car elle est HRP",
   q4: 'Je coopère et privilégie ma survie',
@@ -42,7 +42,7 @@ const RP_RULES = {
 // Règles de notation HRP (base 60)
 const HRP_RULES = {
   q1: {
-    'San Andreas State Police':       +12,
+    'Blaine County Sheriff Office':       +12,
     'San Andreas Special Patrol':     -4,
     'State Agency Security Patrol':   -4,
     'San Andreas Sheriff Patrol':     -4
@@ -63,7 +63,7 @@ const FORCES_MAP = {
   q4_flee:    'Conscience du danger — comportement globalement réaliste face à la menace',
   q5_correct: 'Sens de la confidentialité opérationnelle — discrétion tactique',
   q6_correct: 'Gestion professionnelle des poursuites — anti-powergaming démontré',
-  q1_correct: 'Bonne connaissance de la lore et de l\'organisation SASP'
+  q1_correct: 'Bonne connaissance de la lore et de l\'organisation BCSO'
 };
 
 // Faiblesses détectables
@@ -82,7 +82,7 @@ const FAIBLESSES_MAP = {
   q6_power1:  'Powergaming — connaissance impossible de la position du véhicule',
   q6_power2:  'Powergaming — intuition surnaturelle impossible dans le contexte RP',
   q6_meta:    'Métagaming très grave — utilisation du stream pour gain d\'avantage tactique',
-  q1_wrong:   'Méconnaissance de l\'acronyme et de l\'organisation SASP'
+  q1_wrong:   'Méconnaissance de l\'acronyme et de l\'organisation BCSO'
 };
 
 function calculateScores(qcm, openQuestions) {

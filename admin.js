@@ -1,5 +1,5 @@
 // ── Auth helpers (sessionStorage bloque dans l iframe GAS) ────
-var ADMIN_API = 'https://sasp-nord-discord-bot.louisleurin.workers.dev';
+var ADMIN_API = 'https://bcso-discord-bot.louisleurin.workers.dev';
 var _memAuth = '';
 function _authGet()   { try { return sessionStorage.getItem('sasp_admin_token'); } catch(e) { return _memAuth || null; } }
 function _authSet(token) { _memAuth = token; try { sessionStorage.setItem('sasp_admin_token',token); } catch(e) {} }
@@ -256,7 +256,7 @@ function closeModal(e) {
 
 function buildModal(app) {
   var qDefs = [
-    {k:'q1',q:'Que signifie SASP ?',ok:'San Andreas State Police',t:'HRP'},
+    {k:'q1',q:'Que signifie BCSO ?',ok:'Blaine County Sheriff Office',t:'HRP'},
     {k:'q2',q:'Voiture jaune - 4 occupants',ok:'Rien sauf element RP justifiant une intervention',t:'RP'},
     {k:'q3',q:'Ami Discord signale un braquage',ok:"J'ignore l'information car elle est HRP",t:'RP'},
     {k:'q4',q:'Seul face a 5 individus armes',ok:'Je coopere et privilegie ma survie',t:'FearRP'},
@@ -282,7 +282,7 @@ function buildModal(app) {
   var oq = app.openQuestions || {};
   var openKeys = [
     ['Qualites',oq.qualites],['Defauts',oq.defauts],
-    ['Pourquoi le SASP ?',oq.pourquoiSASP],['Le RP pour vous',oq.rpPourVous],
+    ['Pourquoi le BCSO ?',oq.pourquoiBCSO],['Le RP pour vous',oq.rpPourVous],
     ['Description du metier',oq.descriptionMetier],['Grade vise',oq.gradeVise],
     ['Reaction critique',oq.reactionCritique],['Passions HRP',oq.passionsHRP],
     ['Si vous etiez un animal',oq.animal],['Pourquoi vous ?',oq.pourquoiVous]

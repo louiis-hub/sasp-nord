@@ -15,7 +15,7 @@ if (!_hasToken && location.hostname !== 'sasp-nord-discord-bot.louisleurin.worke
   });
 }
 </script>
-<title>SASP Nord — Recrutement</title>
+<title>BCSO — Recrutement</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -25,10 +25,10 @@ if (!_hasToken && location.hostname !== 'sasp-nord-discord-bot.louisleurin.worke
 <body>
 <header class="site-header" style="position:sticky;top:0;z-index:200">
   <a id="navLogo" href="index.html" style="display:flex;align-items:center;gap:14px;text-decoration:none;flex-shrink:0">
-    <img src="Sasp_logo.png" alt="SASP Nord" style="height:44px;width:auto;object-fit:contain;filter:drop-shadow(0 0 10px rgba(59,130,246,.4))">
+    <img src="Sasp_logo.png" alt="BCSO" style="height:44px;width:auto;object-fit:contain;filter:drop-shadow(0 0 10px rgba(59,130,246,.4))">
     <div>
-      <div class="brand-name">SASP NORD</div>
-      <div class="brand-sub">San Andreas State Police</div>
+      <div class="brand-name">BCSO</div>
+      <div class="brand-sub">Blaine County Sheriff Office</div>
     </div>
   </a>
 
@@ -79,10 +79,10 @@ if (!_hasToken && location.hostname !== 'sasp-nord-discord-bot.louisleurin.worke
 
   <!-- ══ LANDING DISCORD (sans token) ══════════════════════════ -->
   <div id="discordLanding" style="display:none;flex-direction:column;align-items:center;text-align:center;gap:24px;padding:40px 20px">
-    <img src="Sasp_logo.png" alt="SASP Nord" style="height:160px;filter:drop-shadow(0 0 28px rgba(59,130,246,.5))">
+    <img src="Sasp_logo.png" alt="BCSO" style="height:160px;filter:drop-shadow(0 0 28px rgba(59,130,246,.5))">
     <div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--blue);letter-spacing:3px;margin-bottom:10px">CANDIDATURE — SASP NORD</div>
-      <h1 style="font-size:1.8rem;margin-bottom:12px">Rejoindre le SASP Nord</h1>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--blue);letter-spacing:3px;margin-bottom:10px">CANDIDATURE — BCSO</div>
+      <h1 style="font-size:1.8rem;margin-bottom:12px">Rejoindre le BCSO</h1>
       <p style="color:var(--t2);font-size:.95rem;max-width:480px;line-height:1.7">Pour déposer ta candidature, rejoins notre intranet, puis dans la catégorie <strong style="color:var(--t0)">📩・contact</strong> trouve la <strong style="color:var(--t0)">liaison recrutement</strong>.</p>
     </div>
     <a href="https://discord.gg/SKw2ZzAHyb" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#5865F2;color:#fff;font-weight:600;font-size:1rem;padding:14px 28px;border-radius:10px;text-decoration:none;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
@@ -168,7 +168,7 @@ if (!_hasToken && location.hostname !== 'sasp-nord-discord-bot.louisleurin.worke
 
   <div style="margin-bottom:32px">
     <div style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--blue);letter-spacing:3px;margin-bottom:8px">DÉPÔT DE CANDIDATURE</div>
-    <h1>Rejoindre le SASP Nord</h1>
+    <h1>Rejoindre le BCSO</h1>
     <p style="color:var(--t2);margin-top:8px;font-size:.9rem">Remplissez ce formulaire avec soin. Chaque réponse est analysée par notre système de recrutement automatique avant examen par un recruteur.</p>
   </div>
 
@@ -248,9 +248,9 @@ if (!_hasToken && location.hostname !== 'sasp-nord-discord-bot.louisleurin.worke
 
       <div class="qcm-item">
         <div class="qcm-num">QUESTION 01 / 06 — CONNAISSANCE</div>
-        <div class="qcm-q">Que signifie SASP ?</div>
+        <div class="qcm-q">Que signifie BCSO ?</div>
         <div class="radio-group" id="rg-q1">
-          <label class="radio-opt" onclick="selectRadio('q1',this)"><input type="radio" name="q1" value="San Andreas State Police"><div class="r-letter">A</div><div class="r-text">San Andreas State Police</div></label>
+          <label class="radio-opt" onclick="selectRadio('q1',this)"><input type="radio" name="q1" value="Blaine County Sheriff Office"><div class="r-letter">A</div><div class="r-text">Blaine County Sheriff Office</div></label>
           <label class="radio-opt" onclick="selectRadio('q1',this)"><input type="radio" name="q1" value="San Andreas Special Patrol"><div class="r-letter">B</div><div class="r-text">San Andreas Special Patrol</div></label>
           <label class="radio-opt" onclick="selectRadio('q1',this)"><input type="radio" name="q1" value="State Agency Security Patrol"><div class="r-letter">C</div><div class="r-text">State Agency Security Patrol</div></label>
           <label class="radio-opt" onclick="selectRadio('q1',this)"><input type="radio" name="q1" value="San Andreas Sheriff Patrol"><div class="r-letter">D</div><div class="r-text">San Andreas Sheriff Patrol</div></label>
@@ -328,9 +328,9 @@ if (!_hasToken && location.hostname !== 'sasp-nord-discord-bot.louisleurin.worke
         <div class="form-group"><label class="form-label">Vos 3 qualités <span class="req">*</span></label><textarea class="form-control" id="qualites" placeholder="Ex : Calme, rigoureux, à l'écoute..."></textarea><div class="field-err" id="err-qualites">Ce champ est obligatoire.</div></div>
         <div class="form-group"><label class="form-label">Vos 3 défauts <span class="req">*</span></label><textarea class="form-control" id="defauts" placeholder="Soyez honnête, c'est apprécié..."></textarea><div class="field-err" id="err-defauts">Ce champ est obligatoire.</div></div>
       </div>
-      <div class="form-group"><label class="form-label">Pourquoi souhaitez-vous rejoindre le SASP Nord ? <span class="req">*</span></label><textarea class="form-control tall" id="pourquoiSASP" placeholder="Motivations, objectifs, vision de la faction..."></textarea><div class="field-err" id="err-pourquoiSASP">Ce champ est obligatoire.</div></div>
+      <div class="form-group"><label class="form-label">Pourquoi souhaitez-vous rejoindre le BCSO ? <span class="req">*</span></label><textarea class="form-control tall" id="pourquoiBCSO" placeholder="Motivations, objectifs, vision de la faction..."></textarea><div class="field-err" id="err-pourquoiBCSO">Ce champ est obligatoire.</div></div>
       <div class="form-group"><label class="form-label">Que représente le RP pour vous ? <span class="req">*</span></label><textarea class="form-control tall" id="rpPourVous" placeholder="Votre vision du jeu de rôle..."></textarea><div class="field-err" id="err-rpPourVous">Ce champ est obligatoire.</div></div>
-      <div class="form-group"><label class="form-label">Décrivez le métier d'agent du SASP <span class="req">*</span></label><textarea class="form-control tall" id="descriptionMetier" placeholder="Vos représentations du rôle d'agent..."></textarea><div class="field-err" id="err-descriptionMetier">Ce champ est obligatoire.</div></div>
+      <div class="form-group"><label class="form-label">Décrivez le métier d'agent du BCSO <span class="req">*</span></label><textarea class="form-control tall" id="descriptionMetier" placeholder="Vos représentations du rôle d'agent..."></textarea><div class="field-err" id="err-descriptionMetier">Ce champ est obligatoire.</div></div>
       <div class="grid2">
         <div class="form-group"><label class="form-label">Grade visé à terme <span class="req">*</span></label><textarea class="form-control" id="gradeVise" placeholder="Ex : Inspecteur, Lieutenant..."></textarea><div class="field-err" id="err-gradeVise">Ce champ est obligatoire.</div></div>
         <div class="form-group"><label class="form-label">Réaction face à la critique <span class="req">*</span></label><textarea class="form-control" id="reactionCritique" placeholder="Comment gérez-vous les retours négatifs ?"></textarea><div class="field-err" id="err-reactionCritique">Ce champ est obligatoire.</div></div>
@@ -458,7 +458,7 @@ function v1(){
 function v2(){
   let ok=true;
   ['q1','q2','q3','q4','q5','q6'].forEach(q=>{const v=document.querySelector('[name="'+q+'"]:checked');showErr(q,!v);if(!v)ok=false;});
-  ['qualites','defauts','pourquoiSASP','rpPourVous','descriptionMetier','gradeVise','reactionCritique','passionsHRP','animal','pourquoiVous'].forEach(f=>{const v=(document.getElementById(f)?.value||'').trim();showErr(f,!v);if(!v)ok=false;});
+  ['qualites','defauts','pourquoiBCSO','rpPourVous','descriptionMetier','gradeVise','reactionCritique','passionsHRP','animal','pourquoiVous'].forEach(f=>{const v=(document.getElementById(f)?.value||'').trim();showErr(f,!v);if(!v)ok=false;});
   if(!ok)document.querySelector('.show')?.scrollIntoView({behavior:'smooth',block:'center'});
   return ok;
 }
@@ -482,7 +482,7 @@ document.querySelectorAll('.form-control').forEach(el=>el.addEventListener('inpu
 function restoreDraft(){
   try{
     const d=JSON.parse(sessionStorage.getItem('sasp_draft'));if(!d)return;
-    ['nomRP','prenomRP','dateNaissanceRP','telephoneRP','pseudoDiscord','experienceForces','qualites','defauts','pourquoiSASP','rpPourVous','descriptionMetier','gradeVise','reactionCritique','passionsHRP','animal','pourquoiVous','situation1','situation2','situation3'].forEach(f=>{const el=document.getElementById(f);if(el&&d[f])el.value=d[f];});
+    ['nomRP','prenomRP','dateNaissanceRP','telephoneRP','pseudoDiscord','experienceForces','qualites','defauts','pourquoiBCSO','rpPourVous','descriptionMetier','gradeVise','reactionCritique','passionsHRP','animal','pourquoiVous','situation1','situation2','situation3'].forEach(f=>{const el=document.getElementById(f);if(el&&d[f])el.value=d[f];});
     if(d.permisConduire){const r=document.querySelector('[name="permisConduire"][value="'+d.permisConduire+'"]');if(r){r.checked=true;r.dispatchEvent(new Event('change'));}}
     if(d.qcm)['q1','q2','q3','q4','q5','q6'].forEach(q=>{if(d.qcm[q]){const r=[...document.querySelectorAll('[name="'+q+'"]')].find(e=>e.value===d.qcm[q]);if(r){r.checked=true;r.closest('.radio-opt')?.classList.add('sel');}}});
   }catch(e){}
@@ -495,7 +495,7 @@ function collect(){
     email:'',pseudoDiscord:g('pseudoDiscord'),permisConduire:document.querySelector('[name="permisConduire"]:checked')?.value||'',
     experienceForces:g('experienceForces'),
     qcm:{q1:document.querySelector('[name="q1"]:checked')?.value||'',q2:document.querySelector('[name="q2"]:checked')?.value||'',q3:document.querySelector('[name="q3"]:checked')?.value||'',q4:document.querySelector('[name="q4"]:checked')?.value||'',q5:document.querySelector('[name="q5"]:checked')?.value||'',q6:document.querySelector('[name="q6"]:checked')?.value||''},
-    openQuestions:{qualites:g('qualites'),defauts:g('defauts'),pourquoiSASP:g('pourquoiSASP'),rpPourVous:g('rpPourVous'),descriptionMetier:g('descriptionMetier'),gradeVise:g('gradeVise'),reactionCritique:g('reactionCritique'),passionsHRP:g('passionsHRP'),animal:g('animal'),pourquoiVous:g('pourquoiVous')},
+    openQuestions:{qualites:g('qualites'),defauts:g('defauts'),pourquoiBCSO:g('pourquoiBCSO'),rpPourVous:g('rpPourVous'),descriptionMetier:g('descriptionMetier'),gradeVise:g('gradeVise'),reactionCritique:g('reactionCritique'),passionsHRP:g('passionsHRP'),animal:g('animal'),pourquoiVous:g('pourquoiVous')},
     situations:{situation1:g('situation1'),situation2:g('situation2'),situation3:g('situation3')}
   };
 }

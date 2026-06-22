@@ -1,7 +1,7 @@
 (function(){
   if (window.google && window.google.script && window.google.script.run) return;
 
-  var API_URL = String(window.SASP_API_URL || '').trim();
+  var API_URL = String(window.BCSO_API_URL || '').trim();
   var KEY = 'sasp_github_applications';
 
   function read(){ try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) { return []; } }
