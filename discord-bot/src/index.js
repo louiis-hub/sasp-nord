@@ -308,39 +308,85 @@ function safeChannelName(username) {
     .slice(0, 45) || 'candidat';
 }
 
-function ticketConfig(env, type) {
-  const supportRoles = [env.SUPPORT_ROLE_1_ID, env.SUPPORT_ROLE_2_ID];
-  const configs = {
-    recruitment: {
-      prefix: 'recrutement',
-      title: 'Recrutement BCSO',
-      description: 'Le service recrutement lancera ton QCM lorsque tu seras prêt sur place.',
-      categoryId: env.RECRUITMENT_CATEGORY_ID,
-      staffRoleIds: [env.STAFF_ROLE_ID, env.RECRUITMENT_PING_ROLE_ID]
+function defaultPanelConfig(env) {
+  const support = [env.SUPPORT_ROLE_1_ID, env.SUPPORT_ROLE_2_ID].filter(Boolean);
+  return {
+    embed: {
+      title: 'BCSO — Centre de contact',
+      intro: 'Sélectionnez le type de demande dans le menu ci-dessous pour ouvrir un ticket privé.',
+      footer: 'BCSO • Protéger et servir',
+      color: 0xD99A32
     },
-    liaison: {
-      prefix: 'liaison',
-      title: 'Demande de liaison',
-      description: 'Contacte le BCSO au sujet d\'une liaison officielle ou interservice.',
-      categoryId: env.LIAISON_CATEGORY_ID,
-      staffRoleIds: supportRoles
-    },
-    information: {
-      prefix: 'information',
-      title: 'Demande d\'information',
-      description: 'Pose une question ou demande un renseignement à l\'équipe du SASP Nord.',
-      categoryId: env.INFORMATION_CATEGORY_ID,
-      staffRoleIds: supportRoles
-    },
-    divers: {
-      prefix: 'divers',
-      title: 'Demande diverse',
-      description: 'Pour toute demande qui ne correspond pas aux autres catégories.',
-      categoryId: env.DIVERS_CATEGORY_ID,
-      staffRoleIds: supportRoles
-    }
+    categories: [
+      {
+        key: 'recruitment',
+        emoji: '🛡️',
+        label: 'Recrutement',
+        dropdownDesc: 'Candidature et questionnaire',
+        panelLine: '🛡️ **Recrutement** — Déposer une candidature et accéder au questionnaire.',
+        prefix: 'recrutement',
+        channelTitle: 'Recrutement BCSO',
+        channelBody: 'Le service recrutement lancera ton QCM lorsque tu seras prêt sur place.',
+        categoryId: env.RECRUITMENT_CATEGORY_ID || '',
+        staffRoleIds: [env.STAFF_ROLE_ID, env.RECRUITMENT_PING_ROLE_ID].filter(Boolean),
+        isRecruitment: true
+      },
+      {
+        key: 'liaison',
+        emoji: '🤝',
+        label: 'Liaison',
+        dropdownDesc: 'Liaison officielle ou interservice',
+        panelLine: '🤝 **Liaison** — Contacter le service pour une liaison officielle ou interservice.',
+        prefix: 'liaison',
+        channelTitle: 'Demande de liaison',
+        channelBody: "Contacte le BCSO au sujet d'une liaison officielle ou interservice.",
+        categoryId: env.LIAISON_CATEGORY_ID || '',
+        staffRoleIds: support
+      },
+      {
+        key: 'information',
+        emoji: 'ℹ️',
+        label: 'Information',
+        dropdownDesc: 'Question ou renseignement',
+        panelLine: 'ℹ️ **Information** — Obtenir un renseignement ou poser une question.',
+        prefix: 'information',
+        channelTitle: "Demande d'information",
+        channelBody: "Pose une question ou demande un renseignement à l'équipe BCSO.",
+        categoryId: env.INFORMATION_CATEGORY_ID || '',
+        staffRoleIds: support
+      },
+      {
+        key: 'divers',
+        emoji: '📩',
+        label: 'Divers',
+        dropdownDesc: 'Toute autre demande',
+        panelLine: '📩 **Divers** — Toute autre demande destinée au BCSO.',
+        prefix: 'divers',
+        channelTitle: 'Demande diverse',
+        channelBody: 'Pour toute demande qui ne correspond pas aux autres catégories.',
+        categoryId: env.DIVERS_CATEGORY_ID || '',
+        staffRoleIds: support
+      }
+    ]
   };
-  return configs[type] || null;
+}
+
+async function getPanelConfig(env) {
+  const stored = await env.TICKET_ACCESS.get('panel:config', 'json');
+  return stored || defaultPanelConfig(env);
+}
+
+async function ticketConfig(env, type) {
+  const config = await getPanelConfig(env);
+  const cat = config.categories.find(c => c.key === type);
+  if (!cat) return null;
+  return {
+    prefix: cat.prefix,
+    title: cat.channelTitle,
+    description: cat.channelBody,
+    categoryId: cat.categoryId,
+    staffRoleIds: (cat.staffRoleIds || []).filter(Boolean)
+  };
 }
 
 async function findOpenTicket(env, userId) {
@@ -438,7 +484,7 @@ async function resetPanelSelection(env, interaction) {
 
 async function createPanelTicket(env, interaction, origin, type) {
   const user = interaction.member.user;
-  const config = ticketConfig(env, type);
+  const config = await ticketConfig(env, type);
   if (!config) {
     await resetPanelSelection(env, interaction);
     return {
@@ -618,20 +664,15 @@ async function closePanelTicket(env, interaction, ctx) {
 }
 
 async function installTicketPanel(env) {
+  const cfg = await getPanelConfig(env);
+  const embed = cfg.embed;
+  const cats = cfg.categories;
   const payload = {
     embeds: [{
-      title: 'BCSO — Centre de contact',
-      description: [
-        'Sélectionnez le type de demande dans le menu ci-dessous pour ouvrir un ticket privé.',
-        '',
-        '🛡️ **Recrutement** — Déposer une candidature et accéder au questionnaire.',
-        '🤝 **Liaison** — Contacter le service pour une liaison officielle ou interservice.',
-        'ℹ️ **Information** — Obtenir un renseignement ou poser une question.',
-        '📩 **Divers** — Toute autre demande destinée au BCSO.',
-        ''
-      ].join('\n'),
-      color: 0xD99A32,
-      footer: { text: 'BCSO • Protéger et servir' }
+      title: embed.title,
+      description: [embed.intro, '', ...cats.map(c => c.panelLine), ''].join('\n'),
+      color: embed.color || 0xD99A32,
+      footer: { text: embed.footer }
     }],
     components: [{
       type: 1,
@@ -641,12 +682,7 @@ async function installTicketPanel(env) {
         placeholder: 'Sélectionner un type de ticket…',
         min_values: 1,
         max_values: 1,
-        options: [
-          { label: 'Recrutement', value: 'recruitment', description: 'Candidature et questionnaire', emoji: { name: '🛡️' } },
-          { label: 'Liaison', value: 'liaison', description: 'Liaison officielle ou interservice', emoji: { name: '🤝' } },
-          { label: 'Information', value: 'information', description: 'Question ou renseignement', emoji: { name: 'ℹ️' } },
-          { label: 'Divers', value: 'divers', description: 'Toute autre demande', emoji: { name: '📩' } }
-        ]
+        options: cats.map(c => ({ label: c.label, value: c.key, description: c.dropdownDesc, emoji: { name: c.emoji } }))
       }]
     }]
   };
@@ -677,7 +713,7 @@ export default {
         headers: {
           'access-control-allow-origin': new URL(env.SITE_URL).origin,
           'access-control-allow-headers': 'authorization,content-type',
-          'access-control-allow-methods': 'POST,OPTIONS'
+          'access-control-allow-methods': 'GET,POST,OPTIONS'
         }
       });
     }
@@ -688,6 +724,21 @@ export default {
     }
     if (url.pathname === '/admin/login' && request.method === 'POST') return adminLogin(request, env);
     if (url.pathname === '/admin/decision' && request.method === 'POST') return applicationDecision(request, env);
+    if (url.pathname === '/admin/panel' && request.method === 'GET') {
+      if (!await requireAdmin(request, env)) return corsJson(env, { success: false, error: 'Session expirée' }, 401);
+      const config = await getPanelConfig(env);
+      return corsJson(env, { success: true, config });
+    }
+    if (url.pathname === '/admin/panel' && request.method === 'POST') {
+      if (!await requireAdmin(request, env)) return corsJson(env, { success: false, error: 'Session expirée' }, 401);
+      const body = await request.json();
+      if (!body.config || !Array.isArray(body.config.categories)) {
+        return corsJson(env, { success: false, error: 'Config invalide' }, 400);
+      }
+      await env.TICKET_ACCESS.put('panel:config', JSON.stringify(body.config));
+      await installTicketPanel(env);
+      return corsJson(env, { success: true });
+    }
     if (url.pathname === '/recrutement' && request.method === 'GET') return serveRecruitment(env, url);
     if (url.pathname === '/api' && (request.method === 'GET' || request.method === 'POST')) {
       return proxyAppsScript(request, env, url, ctx);
