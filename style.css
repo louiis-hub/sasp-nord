@@ -73,11 +73,11 @@ h1{font-size:2rem} h2{font-size:1.5rem} h3{font-size:1.1rem}
   background:rgba(30,58,138,.18);
 }
 
-/* ─ Page courante : grisé, non cliquable ─ */
+/* ─ Page courante : surbrillance bleue ─ */
 .nav-link.active{
   cursor:default;pointer-events:none;
-  color:var(--t3);border-color:rgba(51,65,85,.3);
-  background:rgba(7,12,24,.4);opacity:.55;
+  color:#fff;border-color:var(--blue);
+  background:rgba(59,130,246,.2);
 }
 
 /* ─ Bouton Admin ─ séparé visuellement ─ */
