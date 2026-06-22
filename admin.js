@@ -1,5 +1,5 @@
 // ── Auth helpers (sessionStorage bloque dans l iframe GAS) ────
-var ADMIN_API = 'https://bcso-discord-bot.louisleurin.workers.dev';
+var ADMIN_API = 'https://sasp-nord-discord-bot.louisleurin.workers.dev';
 var _memAuth = '';
 function _authGet()   { try { return sessionStorage.getItem('sasp_admin_token'); } catch(e) { return _memAuth || null; } }
 function _authSet(token) { _memAuth = token; try { sessionStorage.setItem('sasp_admin_token',token); } catch(e) {} }
