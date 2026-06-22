@@ -263,7 +263,7 @@ async function applicationDecision(request, env) {
   const accepted = status === 'Acceptée';
   const description = accepted
     ? 'Ta candidature est acceptée. Le service recrutement te communiquera la suite directement dans ce ticket.'
-    : 'Ta candidature n’est pas retenue cette fois-ci. Tu pourras déposer une nouvelle candidature dans **24 heures**.';
+    : 'Ta candidature n'est pas retenue cette fois-ci. Tu pourras déposer une nouvelle candidature dans **24 heures**.';
   await discord(env, `/channels/${ticket.channelId}/messages`, {
     method: 'POST',
     body: JSON.stringify({
@@ -324,14 +324,14 @@ function ticketConfig(env, type) {
     liaison: {
       prefix: 'liaison',
       title: 'Demande de liaison',
-      description: 'Contacte le BCSO au sujet d’une liaison officielle ou interservice.',
+      description: 'Contacte le BCSO au sujet d'une liaison officielle ou interservice.',
       categoryId: env.LIAISON_CATEGORY_ID,
       staffRoleIds: supportRoles
     },
     information: {
       prefix: 'information',
-      title: 'Demande d’information',
-      description: 'Pose une question ou demande un renseignement à l’équipe du SASP Nord.',
+      title: 'Demande d'information',
+      description: 'Pose une question ou demande un renseignement à l'équipe du SASP Nord.',
       categoryId: env.INFORMATION_CATEGORY_ID,
       staffRoleIds: supportRoles
     },
@@ -462,7 +462,7 @@ async function createPanelTicket(env, interaction, origin, type) {
     }
   }
 
-  if (type === ‘recruitment’) await addCandidateRole(env, user.id);
+  if (type === 'recruitment') await addCandidateRole(env, user.id);
   const staffRoleIds = [...new Set(config.staffRoleIds.filter(Boolean))];
   const channel = await discord(env, `/guilds/${env.DISCORD_GUILD_ID}/channels`, {
     method: 'POST',
@@ -544,7 +544,7 @@ async function launchRecruitmentQcm(env, interaction, origin) {
   await discord(env, `/channels/${interaction.channel_id}/messages`, {
     method: 'POST',
     body: JSON.stringify({
-      content: `<@${ownerId}> ton QCM est prêt. Ce lien est personnel et ne pourra être utilisé qu’une seule fois.`,
+      content: `<@${ownerId}> ton QCM est prêt. Ce lien est personnel et ne pourra être utilisé qu'une seule fois.`,
       allowed_mentions: { parse: [], users: [ownerId] },
       embeds: [{
         title: 'QCM de recrutement',
@@ -642,7 +642,7 @@ async function installTicketPanel(env) {
         '🤝 **Liaison** — Contacter le service pour une liaison officielle ou interservice.',
         'ℹ️ **Information** — Obtenir un renseignement ou poser une question.',
         '📩 **Divers** — Toute autre demande destinée au BCSO.',
-        ‘’
+        ''
       ].join('\n'),
       color: 0xD99A32,
       footer: { text: 'BCSO • Protéger et servir' }
