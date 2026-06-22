@@ -287,9 +287,6 @@ async function applicationDecision(request, env) {
   const statusResult = await statusResponse.json();
   if (!statusResult.success) return corsJson(env, statusResult, 502);
 
-  if (!accepted) {
-    await env.TICKET_ACCESS.put(`recruitment-cooldown:${ticket.userId}`, String(Date.now() + 24 * 60 * 60 * 1000), { expirationTtl: 24 * 60 * 60 });
-  }
   const accessToken = await env.TICKET_ACCESS.get(`channel:${ticket.channelId}`);
   if (accessToken) {
     await Promise.all([
@@ -450,17 +447,6 @@ async function createPanelTicket(env, interaction, origin, type) {
     };
   }
 
-  if (type === 'recruitment') {
-    const cooldownUntil = Number(await env.TICKET_ACCESS.get(`recruitment-cooldown:${user.id}`) || 0);
-    if (cooldownUntil > Date.now()) {
-      const hours = Math.max(1, Math.ceil((cooldownUntil - Date.now()) / (60 * 60 * 1000)));
-      await resetPanelSelection(env, interaction);
-      return {
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: { content: `Tu pourras déposer une nouvelle candidature dans environ ${hours} heure(s).`, flags: 64 }
-      };
-    }
-  }
 
   if (type === 'recruitment') await addCandidateRole(env, user.id);
   const staffRoleIds = [...new Set(config.staffRoleIds.filter(Boolean))];
