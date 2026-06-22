@@ -117,9 +117,11 @@ function getFilteredApps() {
 function switchAdminSection(section, btn) {
   document.getElementById('applicationsPanel').style.display = section === 'applications' ? 'block' : 'none';
   document.getElementById('recruitmentStatusPanel').style.display = section === 'status' ? 'block' : 'none';
-  document.querySelectorAll('#adminTabApplications,#adminTabStatus').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById('discordPanelSection').style.display = section === 'panel' ? 'block' : 'none';
+  document.querySelectorAll('#adminTabApplications,#adminTabStatus,#adminTabPanel').forEach(function(el){ el.classList.remove('active'); });
   if (btn) btn.classList.add('active');
   if (section === 'status') loadRecruitmentStatus();
+  if (section === 'panel') loadPanelConfig();
 }
 
 function paintRecruitmentStatus(status) {
@@ -199,7 +201,7 @@ function sendDiscordDecision(id, status) {
     if (app) app.statut = status;
     updateStats();
     renderTable(getFilteredApps());
-    alert(status === 'Acceptée' ? 'Acceptation envoyée dans le ticket.' : 'Refus envoyé. Le candidat pourra réessayer dans 24 h.');
+    alert(status === 'Acceptée' ? 'Acceptation envoyée dans le ticket.' : 'Refus envoyé dans le ticket.');
   }).catch(function(error){
     if (/session/i.test(error.message || '')) logout();
     alert(error.message || 'Impossible d’envoyer la décision.');
@@ -209,7 +211,7 @@ function sendDiscordDecision(id, status) {
 function setStatus(id, s) {
   if (s === 'Acceptée') { sendDiscordDecision(id, s); return; }
   if (s === 'Refusée') {
-    if (confirm('Confirmer le refus ? Le candidat pourra déposer une nouvelle candidature dans 24 heures.')) {
+    if (confirm('Confirmer le refus ?')) {
       sendDiscordDecision(id, s);
     }
     return;
@@ -330,6 +332,164 @@ function buildModal(app) {
     '<div class="modal-section"><div class="modal-sec-ttl">Reponses QCM</div>' + qcmHtml + '</div>' +
     '<div class="modal-section"><div class="modal-sec-ttl">Questions ouvertes</div>' + openHtml + '</div>' +
     '<div class="modal-section"><div class="modal-sec-ttl">Mises en situation</div>' + sitHtml + '</div>';
+}
+
+// ══ PANEL DISCORD ════════════════════════════════════════════
+var _panelConfig = null;
+
+function loadPanelConfig() {
+  var token = _authGet();
+  if (!token) { logout(); return; }
+  document.getElementById('panelCatList').innerHTML = '<div class="loader"><div class="spinner"></div> Chargement…</div>';
+  document.getElementById('panelFeedback').textContent = '';
+  fetch(ADMIN_API + '/admin/panel', {
+    headers: { 'authorization': 'Bearer ' + token }
+  }).then(function(r){ return r.json(); }).then(function(res){
+    if (!res.success) throw new Error(res.error || 'Erreur');
+    _panelConfig = res.config;
+    renderPanelEditor(_panelConfig);
+  }).catch(function(err){
+    document.getElementById('panelCatList').innerHTML = '<div class="empty-state" style="color:var(--red)"><p>' + esc(err.message) + '</p></div>';
+  });
+}
+
+function renderPanelEditor(cfg) {
+  document.getElementById('panelEmbedTitle').value  = cfg.embed.title  || '';
+  document.getElementById('panelEmbedFooter').value = cfg.embed.footer || '';
+  document.getElementById('panelEmbedIntro').value  = cfg.embed.intro  || '';
+  renderCatList(cfg.categories);
+}
+
+function renderCatList(cats) {
+  if (!cats || !cats.length) {
+    document.getElementById('panelCatList').innerHTML = '<div class="empty-state"><p>Aucune catégorie</p></div>';
+    return;
+  }
+  document.getElementById('panelCatList').innerHTML = cats.map(function(cat, i) {
+    var isRecruit = cat.isRecruitment;
+    return '<div style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--bgCard);border:1px solid var(--border0);border-radius:var(--rMd)">' +
+      '<span style="font-size:1.4rem;flex-shrink:0">' + esc(cat.emoji) + '</span>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-weight:600;color:var(--t0)">' + esc(cat.label) +
+          (isRecruit ? ' <span style="font-size:.65rem;background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3);padding:1px 6px;border-radius:4px;margin-left:4px">recrutement</span>' : '') +
+        '</div>' +
+        '<div style="font-size:.8rem;color:var(--t2);margin-top:2px">' + esc(cat.dropdownDesc) + '</div>' +
+        '<div style="font-size:.72rem;color:var(--t3);margin-top:2px;font-family:monospace">key: ' + esc(cat.key) + ' · cat: ' + esc(cat.categoryId || '—') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px;flex-shrink:0">' +
+        (i > 0 ? '<button class="btn btn-ghost btn-sm" onclick="moveCat(' + i + ',-1)" title="Monter">↑</button>' : '') +
+        (i < cats.length - 1 ? '<button class="btn btn-ghost btn-sm" onclick="moveCat(' + i + ',1)" title="Descendre">↓</button>' : '') +
+        '<button class="btn btn-ghost btn-sm" onclick="openCatModal(' + i + ')">Éditer</button>' +
+        (!isRecruit ? '<button class="btn btn-red btn-sm" onclick="deleteCat(' + i + ')">✕</button>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function moveCat(index, dir) {
+  var cats = _panelConfig.categories;
+  var newIdx = index + dir;
+  if (newIdx < 0 || newIdx >= cats.length) return;
+  var tmp = cats[index]; cats[index] = cats[newIdx]; cats[newIdx] = tmp;
+  renderCatList(cats);
+}
+
+function deleteCat(index) {
+  var cat = _panelConfig.categories[index];
+  if (!confirm('Supprimer la catégorie "' + cat.label + '" ?')) return;
+  _panelConfig.categories.splice(index, 1);
+  renderCatList(_panelConfig.categories);
+}
+
+// ── Modal catégorie ───────────────────────────────────────────
+var _editingCatIndex = null;
+
+function openCatModal(index) {
+  _editingCatIndex = index;
+  var isNew = index === null;
+  document.getElementById('catModalTitle').textContent = isNew ? 'Nouvelle catégorie' : 'Modifier la catégorie';
+  var cat = isNew ? { key:'', emoji:'', label:'', dropdownDesc:'', panelLine:'', prefix:'', channelTitle:'', channelBody:'', categoryId:'', staffRoleIds:[] } : _panelConfig.categories[index];
+  document.getElementById('catModalKey').value      = cat.key || '';
+  document.getElementById('catEmoji').value         = cat.emoji || '';
+  document.getElementById('catLabel').value         = cat.label || '';
+  document.getElementById('catDropdownDesc').value  = cat.dropdownDesc || '';
+  document.getElementById('catPanelLine').value     = cat.panelLine || '';
+  document.getElementById('catPrefix').value        = cat.prefix || '';
+  document.getElementById('catCategoryId').value    = cat.categoryId || '';
+  document.getElementById('catChannelTitle').value  = cat.channelTitle || '';
+  document.getElementById('catChannelBody').value   = cat.channelBody || '';
+  document.getElementById('catStaffRoles').value    = (cat.staffRoleIds || []).join(', ');
+  if (!isNew && cat.isRecruitment) {
+    document.getElementById('catModalKey').disabled = true;
+    document.getElementById('catPrefix').disabled = true;
+  } else {
+    document.getElementById('catModalKey').disabled = false;
+    document.getElementById('catPrefix').disabled = false;
+  }
+  document.getElementById('catModalOverlay').classList.add('open');
+}
+
+function closeCatModal(e) {
+  if (e.target === document.getElementById('catModalOverlay'))
+    document.getElementById('catModalOverlay').classList.remove('open');
+}
+
+function saveCatModal() {
+  var key   = document.getElementById('catModalKey').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'') || ('cat' + Date.now());
+  var label = document.getElementById('catLabel').value.trim();
+  if (!label) { alert('Le label est obligatoire.'); return; }
+  var existing = _editingCatIndex !== null ? _panelConfig.categories[_editingCatIndex] : null;
+  var cat = {
+    key:          existing && existing.isRecruitment ? existing.key : key,
+    emoji:        document.getElementById('catEmoji').value.trim() || '📩',
+    label:        label,
+    dropdownDesc: document.getElementById('catDropdownDesc').value.trim(),
+    panelLine:    document.getElementById('catPanelLine').value.trim(),
+    prefix:       existing && existing.isRecruitment ? existing.prefix : (document.getElementById('catPrefix').value.trim() || key),
+    channelTitle: document.getElementById('catChannelTitle').value.trim(),
+    channelBody:  document.getElementById('catChannelBody').value.trim(),
+    categoryId:   document.getElementById('catCategoryId').value.trim(),
+    staffRoleIds: document.getElementById('catStaffRoles').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean)
+  };
+  if (existing && existing.isRecruitment) cat.isRecruitment = true;
+  if (_editingCatIndex === null) {
+    _panelConfig.categories.push(cat);
+  } else {
+    _panelConfig.categories[_editingCatIndex] = cat;
+  }
+  renderCatList(_panelConfig.categories);
+  document.getElementById('catModalOverlay').classList.remove('open');
+}
+
+function savePanelConfig() {
+  var token = _authGet();
+  if (!token) { logout(); return; }
+  _panelConfig.embed.title  = document.getElementById('panelEmbedTitle').value.trim();
+  _panelConfig.embed.footer = document.getElementById('panelEmbedFooter').value.trim();
+  _panelConfig.embed.intro  = document.getElementById('panelEmbedIntro').value.trim();
+  var btn = document.getElementById('panelSaveBtn');
+  var txt = document.getElementById('panelSaveTxt');
+  var fb  = document.getElementById('panelFeedback');
+  btn.disabled = true;
+  txt.innerHTML = '<span class="spinner" style="display:inline-block;vertical-align:middle"></span> Publication…';
+  fb.textContent = '';
+  fetch(ADMIN_API + '/admin/panel', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'authorization': 'Bearer ' + token },
+    body: JSON.stringify({ config: _panelConfig })
+  }).then(function(r){ return r.json(); }).then(function(res){
+    if (!res.success) throw new Error(res.error || 'Erreur');
+    txt.textContent = '✓ Publié avec succès';
+    fb.style.color = 'var(--green)';
+    fb.textContent = 'Panel Discord mis à jour.';
+    setTimeout(function(){ txt.textContent = '💾 Sauvegarder & Republier'; btn.disabled = false; }, 2000);
+  }).catch(function(err){
+    txt.textContent = '💾 Sauvegarder & Republier';
+    btn.disabled = false;
+    fb.style.color = 'var(--red)';
+    fb.textContent = err.message || 'Erreur lors de la publication.';
+    if (/session/i.test(err.message || '')) logout();
+  });
 }
 
 // ── Helpers ───────────────────────────────────────────────────

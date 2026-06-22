@@ -116,6 +116,7 @@
     <div class="filter-tabs" style="margin-bottom:22px">
       <button class="ftab active" id="adminTabApplications" onclick="switchAdminSection('applications',this)">Gestion des recrutements</button>
       <button class="ftab" id="adminTabStatus" onclick="switchAdminSection('status',this)">Statut des recrutements</button>
+      <button class="ftab" id="adminTabPanel" onclick="switchAdminSection('panel',this)">Panel Discord</button>
     </div>
 
     <section id="applicationsPanel">
@@ -162,6 +163,52 @@
       </div>
     </section>
 
+    <!-- ══ PANEL DISCORD ═════════════════════════════════════════ -->
+    <section id="discordPanelSection" style="display:none">
+
+      <!-- Embed Discord -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-head">
+          <div class="card-icon">🖼️</div>
+          <div><div class="card-title">Embed Discord</div><div class="card-sub">APPARENCE DU MESSAGE PANEL</div></div>
+        </div>
+        <div class="grid2" style="gap:16px">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Titre</label>
+            <input class="form-control" id="panelEmbedTitle" type="text" placeholder="BCSO — Centre de contact">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Footer</label>
+            <input class="form-control" id="panelEmbedFooter" type="text" placeholder="BCSO • Protéger et servir">
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:14px;margin-bottom:0">
+          <label class="form-label">Texte d'introduction</label>
+          <textarea class="form-control" id="panelEmbedIntro" rows="2" placeholder="Sélectionnez le type de demande…"></textarea>
+        </div>
+      </div>
+
+      <!-- Catégories -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-head" style="margin-bottom:16px">
+          <div class="card-icon">🎫</div>
+          <div><div class="card-title">Catégories de tickets</div><div class="card-sub">MENU DÉROULANT DU PANEL</div></div>
+          <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openCatModal(null)">+ Ajouter</button>
+        </div>
+        <div id="panelCatList" style="display:flex;flex-direction:column;gap:10px">
+          <div class="loader"><div class="spinner"></div> Chargement…</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <button class="btn btn-primary" id="panelSaveBtn" onclick="savePanelConfig()">
+          <span id="panelSaveTxt">💾 Sauvegarder &amp; Republier</span>
+        </button>
+        <div id="panelFeedback" style="font-size:.85rem;color:var(--t2)"></div>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -176,6 +223,66 @@
       <button class="btn-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">✕</button>
     </div>
     <div class="modal-body" id="modalContent"></div>
+  </div>
+</div>
+
+<!-- ══ Modal catégorie ticket ════════════════════════════════= -->
+<div class="modal-overlay" id="catModalOverlay" onclick="closeCatModal(event)">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-hd">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--blue);letter-spacing:2px;margin-bottom:4px">CATÉGORIE DE TICKET</div>
+        <h2 id="catModalTitle" style="font-size:1.25rem">Nouvelle catégorie</h2>
+      </div>
+      <button class="btn-close" onclick="document.getElementById('catModalOverlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="catModalKey">
+      <div class="grid2" style="gap:12px;margin-bottom:12px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Emoji</label>
+          <input class="form-control" id="catEmoji" type="text" placeholder="🛡️" maxlength="4">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Label (nom affiché)</label>
+          <input class="form-control" id="catLabel" type="text" placeholder="Recrutement">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label">Description dropdown <span style="color:var(--t3);font-size:.75rem">(max 100 car.)</span></label>
+        <input class="form-control" id="catDropdownDesc" type="text" placeholder="Candidature et questionnaire" maxlength="100">
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label">Ligne dans l'embed du panel</label>
+        <input class="form-control" id="catPanelLine" type="text" placeholder="🛡️ **Recrutement** — Description…">
+      </div>
+      <div class="grid2" style="gap:12px;margin-bottom:12px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Préfixe du channel</label>
+          <input class="form-control" id="catPrefix" type="text" placeholder="recrutement">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">ID Catégorie Discord</label>
+          <input class="form-control" id="catCategoryId" type="text" placeholder="1234567890123456789">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label">Titre du message de bienvenue</label>
+        <input class="form-control" id="catChannelTitle" type="text" placeholder="Recrutement BCSO">
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label">Corps du message de bienvenue</label>
+        <textarea class="form-control" id="catChannelBody" rows="2" placeholder="Le service recrutement lancera ton QCM…"></textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <label class="form-label">IDs des rôles staff <span style="color:var(--t3);font-size:.75rem">(séparés par des virgules)</span></label>
+        <input class="form-control" id="catStaffRoles" type="text" placeholder="1234567890,0987654321">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" onclick="saveCatModal()" style="flex:1">Enregistrer</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('catModalOverlay').classList.remove('open')">Annuler</button>
+      </div>
+    </div>
   </div>
 </div>
 
