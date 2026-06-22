@@ -714,6 +714,10 @@ export default {
       });
     }
     if (url.pathname === '/health') return json({ ok: true });
+    if (url.pathname === '/admin/install-panel' && request.method === 'GET') {
+      await installTicketPanel(env);
+      return json({ ok: true });
+    }
     if (url.pathname === '/admin/login' && request.method === 'POST') return adminLogin(request, env);
     if (url.pathname === '/admin/decision' && request.method === 'POST') return applicationDecision(request, env);
     if (url.pathname === '/recrutement' && request.method === 'GET') return serveRecruitment(env, url);
