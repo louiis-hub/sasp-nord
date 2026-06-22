@@ -376,14 +376,6 @@ async function removeCandidateRole(env, userId) {
 
 async function createTicket(env, interaction, origin) {
   const user = interaction.member.user;
-  const openTickets = await findOpenTickets(env, user.id);
-  if (openTickets.length >= 5) {
-    return {
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: { content: 'Tu as déjà 5 tickets ouverts. Ferme un ticket avant d’en créer un autre.', flags: 64 }
-    };
-  }
-
   await addCandidateRole(env, user.id);
   const channel = await discord(env, `/guilds/${env.DISCORD_GUILD_ID}/channels`, {
     method: 'POST',
@@ -470,16 +462,7 @@ async function createPanelTicket(env, interaction, origin, type) {
     }
   }
 
-  const openTickets = await findOpenTickets(env, user.id);
-  if (openTickets.length >= 5) {
-    await resetPanelSelection(env, interaction);
-    return {
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: { content: 'Tu as déjà 5 tickets ouverts. Ferme un ticket avant d’en créer un autre.', flags: 64 }
-    };
-  }
-
-  if (type === 'recruitment') await addCandidateRole(env, user.id);
+  if (type === ‘recruitment’) await addCandidateRole(env, user.id);
   const staffRoleIds = [...new Set(config.staffRoleIds.filter(Boolean))];
   const channel = await discord(env, `/guilds/${env.DISCORD_GUILD_ID}/channels`, {
     method: 'POST',
@@ -659,8 +642,7 @@ async function installTicketPanel(env) {
         '🤝 **Liaison** — Contacter le service pour une liaison officielle ou interservice.',
         'ℹ️ **Information** — Obtenir un renseignement ou poser une question.',
         '📩 **Divers** — Toute autre demande destinée au BCSO.',
-        '',
-        '*Chaque personne peut avoir jusqu’à 5 tickets ouverts en même temps.*'
+        ‘’
       ].join('\n'),
       color: 0xD99A32,
       footer: { text: 'BCSO • Protéger et servir' }
