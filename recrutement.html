@@ -449,7 +449,11 @@ function showErr(id,show){
 
 function v1(){
   let ok=true;
-  ['nomRP','prenomRP','dateNaissanceRP','telephoneRP','pseudoDiscord'].forEach(f=>{const v=(document.getElementById(f)?.value||'').trim();showErr(f,!v);if(!v)ok=false;});
+  ['nomRP','prenomRP','telephoneRP','pseudoDiscord'].forEach(f=>{const v=(document.getElementById(f)?.value||'').trim();showErr(f,!v);if(!v)ok=false;});
+  const dob=document.getElementById('dateNaissanceRP')?.value||'';
+  const errDob=document.getElementById('err-dateNaissanceRP');
+  if(!dob){if(errDob)errDob.textContent='Ce champ est obligatoire.';showErr('dateNaissanceRP',true);ok=false;}
+  else{const b=new Date(dob),t=new Date();let age=t.getFullYear()-b.getFullYear();const m=t.getMonth()-b.getMonth();if(m<0||(m===0&&t.getDate()<b.getDate()))age--;if(age<21){if(errDob)errDob.textContent="L’\xE2ge minimum pour candidater est de 21 ans.";showErr('dateNaissanceRP',true);ok=false;}else showErr('dateNaissanceRP',false);}
   const p=document.querySelector('[name="permisConduire"]:checked');showErr('permisConduire',!p);if(!p)ok=false;
   if(!ok)document.querySelector('.show')?.scrollIntoView({behavior:'smooth',block:'center'});
   return ok;
