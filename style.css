@@ -1,19 +1,19 @@
 /* ════════════════════════════════════════════════════════════
-   BCSO — Design System · Sheriff Gold Theme
+   BCSO — Design System · MDT Police Theme
 ════════════════════════════════════════════════════════════ */
 
 :root {
-  --bg0:#06050a; --bg1:#0c0b12; --bg2:#120f1a;
-  --bgCard:#16131f; --bgCardAlt:#1c1828; --bgInput:#0a0810;
-  --border0:rgba(180,120,20,.18); --border1:rgba(217,154,50,.35); --border2:rgba(217,154,50,.6);
-  --blue:#D99A32; --blueDark:#8B5E10; --blueLight:#F0C060; --blueGlow:rgba(217,154,50,.15);
-  --gold:#D99A32; --goldDk:#8B5E10;
-  --t0:#f5f0e8; --t1:#d4c9b0; --t2:#8a7d65; --t3:#4a4030;
+  --bg0:#040810; --bg1:#070c18; --bg2:#0b1220;
+  --bgCard:#0e1628; --bgCardAlt:#111d32; --bgInput:#060d18;
+  --border0:rgba(30,58,138,.2); --border1:rgba(59,130,246,.3); --border2:rgba(59,130,246,.6);
+  --blue:#3b82f6; --blueDark:#1d4ed8; --blueLight:#60a5fa; --blueGlow:rgba(59,130,246,.15);
+  --gold:#f59e0b; --goldDk:#b45309;
+  --t0:#f1f5f9; --t1:#cbd5e1; --t2:#94a3b8; --t3:#475569;
   --green:#10b981; --greenDim:rgba(16,185,129,.15);
   --yellow:#f59e0b; --yellowDim:rgba(245,158,11,.15);
   --red:#ef4444; --redDim:rgba(239,68,68,.15);
-  --shadowSm:0 2px 8px rgba(0,0,0,.4); --shadowMd:0 4px 16px rgba(0,0,0,.5);
-  --shadowLg:0 8px 32px rgba(0,0,0,.6); --shadowBlue:0 0 24px rgba(217,154,50,.2);
+  --shadowSm:0 2px 8px rgba(0,0,0,.3); --shadowMd:0 4px 16px rgba(0,0,0,.4);
+  --shadowLg:0 8px 32px rgba(0,0,0,.5); --shadowBlue:0 0 24px rgba(59,130,246,.2);
   --rSm:4px; --rMd:8px; --rLg:12px; --rXl:16px;
   --ease:cubic-bezier(.4,0,.2,1); --dur:200ms; --durSlow:400ms;
 }
