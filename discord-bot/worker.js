@@ -1037,6 +1037,17 @@ var index_default = {
       await installTicketPanel(env);
       return json({ ok: true });
     }
+    if (url.pathname === "/admin/install-fiche-command" && request.method === "GET") {
+      await discord(env, `/applications/${env.DISCORD_APPLICATION_ID}/guilds/${env.DISCORD_GUILD_ID}/commands`, {
+        method: "POST",
+        body: JSON.stringify({
+          name: "fiche",
+          description: "Affiche la fiche d'un agent BCSO",
+          options: [{ type: 3, name: "matricule", description: "Matricule de l'agent (ex: B-042)", required: true }]
+        })
+      });
+      return json({ ok: true, message: "Commande /fiche enregistrée." });
+    }
     if (url.pathname === "/admin/install-verification" && request.method === "GET") {
       await installVerificationPanel(env);
       return json({ ok: true });
@@ -1154,6 +1165,42 @@ var index_default = {
         return json({
           type: import_discord_interactions.InteractionResponseType.UPDATE_MESSAGE,
           data: { content: "Fermeture annul\xE9e.", components: [] }
+        });
+      }
+      if (interaction.type === 2 && interaction.data.name === "fiche") {
+        const matricule = (interaction.data.options?.[0]?.value || "").trim().toUpperCase();
+        if (!matricule) return json({ type: 4, data: { content: "❌ Matricule manquant.", flags: 64 } });
+        if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) return json({ type: 4, data: { content: "❌ Variables SUPABASE_URL / SUPABASE_ANON_KEY non configur\xE9es.", flags: 64 } });
+        const resp = await fetch(`${env.SUPABASE_URL}/rest/v1/agents?matricule=eq.${encodeURIComponent(matricule)}&select=*`, {
+          headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: `Bearer ${env.SUPABASE_ANON_KEY}` }
+        });
+        const agents = await resp.json();
+        if (!Array.isArray(agents) || !agents.length) return json({ type: 4, data: { content: `❌ Aucun agent avec le matricule \`${matricule}\` trouv\xE9.`, flags: 64 } });
+        const ag = agents[0];
+        const ppas = [ag.ppa1, ag.ppa2, ag.ppa3].filter(Boolean).length;
+        const unites = (ag.unites || []).join(", ") || "—";
+        const statutColor = ag.statut === "Actif" ? 0x4caf50 : ag.statut === "Suspendu" ? 0xf59e0b : ag.statut === "Archiv\xE9" ? 0xe74c3c : 0x808080;
+        return json({
+          type: 4,
+          data: {
+            embeds: [{
+              title: `👤 ${ag.prenom} ${ag.nom}`,
+              color: statutColor,
+              fields: [
+                { name: "Matricule", value: `\`${ag.matricule}\``, inline: true },
+                { name: "Grade", value: ag.grade || "—", inline: true },
+                { name: "Statut", value: ag.statut || "—", inline: true },
+                { name: "Divisions", value: unites, inline: true },
+                { name: "Formations PPA", value: `${ppas}/3`, inline: true },
+                { name: "Recrutement", value: ag.date_recrutement || "—", inline: true },
+                ...(ag.telephone ? [{ name: "T\xE9l\xE9phone RP", value: ag.telephone, inline: true }] : []),
+                ...(ag.is_formateur ? [{ name: "R\xF4le", value: "🎓 Formateur", inline: true }] : []),
+                ...(ag.notes ? [{ name: "Notes", value: ag.notes.slice(0, 200) }] : [])
+              ],
+              footer: { text: "BCSO Intranet" },
+              timestamp: new Date().toISOString()
+            }]
+          }
         });
       }
       return json({
